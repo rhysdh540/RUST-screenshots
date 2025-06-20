@@ -4,10 +4,8 @@
   "name": "${mod_name}",
   "version": "${mod_version}",
   "description": "${mod_description}",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
-    "main": [
-      "com.example.mymod.FabricEntrypoint"
-    ]
+    "client": ["dev.rdh.rust.RUST"]
   }
 }

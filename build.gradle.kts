@@ -63,6 +63,7 @@ modstitch {
 
     mixin {
         addMixinsToModManifest = true
+        configs.register("rust")
     }
 }
 
@@ -80,7 +81,7 @@ manifold {
 
     preprocessor {
         config {
-            property("MC", stonecutter.current.version)
+            property("MC", stonecutter.current.version.removePrefix("1."))
             stonecutter.constants.forEach {
                 if (it.value) { property(it.key) }
             }

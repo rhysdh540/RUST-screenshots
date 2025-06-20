@@ -1,0 +1,19 @@
+- resize screenshots
+  - allow the user to create different keybinds for different sizes
+  - each one should have the following options:
+    - width, height
+    - hide ui
+    - file format
+    - save location (only allow subdirectories of `screenshots/`)
+    - name format
+  - disable the vanilla screenshot keybind if it's overridden
+- in-game screenshot browser
+  - look at all the screenshots in the screenshots folder and subdirectories
+  - sorting options
+  - upload to services
+  - delete and edit them
+    - have basic editing tools (crop, flip, stretch rotate by 90deg, mirror)
+    - post-process filters
+      - grayscale, idk
+- replace tne vanilla response component
+- screenshot sound effect?
