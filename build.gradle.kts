@@ -65,7 +65,7 @@ fun applyLoom() {
             named("client") {
                 client()
                 name("Fabric " + "minecraft_version"())
-                appendProjectPathToConfigName = false
+
                 ideConfigGenerated(true)
             }
 
@@ -131,12 +131,14 @@ tasks.processResources {
         else -> error("Unknown platform: ${"platform"()}")
     }
 
+    val version = rootProject.version as String
+
     filesMatching(listOf("META-INF/*.toml", "fabric.mod.json", "pack.mcmeta")) {
         expand(
             "mod_issue_tracker" to "https://todo.lol",
             "mod_license" to "ARR", // for now
             "mod_id" to "rust",
-            "mod_version" to project.version.toString(),
+            "mod_version" to "0.0-dev",
             "mod_name" to "RDH'S ULTIMATE SCREENSHOT TOOL",
             "mod_description" to "screenshots if they were cool",
             "mod_author" to "rdh",
