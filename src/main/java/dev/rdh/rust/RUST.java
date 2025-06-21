@@ -3,6 +3,8 @@ package dev.rdh.rust;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.resources.ResourceLocation;
+
 #if forge
 @net.minecraftforge.fml.common.Mod(RUST.ID)
 #elif neoforge
@@ -16,5 +18,13 @@ public class RUST #if fabric implements net.fabricmc.api.ClientModInitializer #e
 	#else public RUST() {
 	#endif
 		LOGGER.info("hi!!");
+	}
+
+	public static ResourceLocation resource(String path) {
+		#if MC >= "21.0"
+		return ResourceLocation.fromNamespaceAndPath(ID, path);
+		#else
+		return new ResourceLocation(ID, path);
+		#endif
 	}
 }

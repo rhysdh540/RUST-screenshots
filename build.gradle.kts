@@ -1,70 +1,15 @@
-import xyz.wagyourtail.manifold.plugin.manifold
+import xyz.wagyourtail.commonskt.utils.capitalized
 
 plugins {
-    id("dev.isxander.modstitch.base") version("0.5.12") apply(false)
-    id("xyz.wagyourtail.manifold") version("1.0.0-SNAPSHOT") apply(false)
+    id("fabric-loom") version("1.10.+") apply(false)
+    id("net.neoforged.moddev") version("2.0.95") apply(false)
+    id("xyz.wagyourtail.manifold") version("1.1.0")
 }
 
 run {
     val (mc, platform) = stonecutter.current.project.split("-")
     ext["minecraft_version"] = mc
     ext["platform"] = platform
-
-    ext["modstitch.platform"] = when {
-        platform == "fabric" -> "loom"
-        platform == "neoforge" -> "moddevgradle"
-        platform == "forge" && stonecutter.eval(mc, ">=1.17") -> "moddevgradle-legacy"
-        else -> error("unsupported platform: $platform")
-    }
-
-    apply(plugin = "dev.isxander.modstitch.base")
-}
-
-modstitch {
-    minecraftVersion = "minecraft_version"()
-
-    javaTarget = if (stonecutter.eval("minecraft_version", ">=1.20.5")) 21 else 17
-
-    parchment {
-        "parchment_version".maybe { mappingsVersion = it }
-        "parchment_mc_version".maybe { minecraftVersion = it }
-    }
-
-    metadata {
-        modId = "rust"
-        modName = "rdh's Ultimate Screenshot Tool"
-        modVersion = project.version.toString()
-        modDescription = "screenshots if they were cool"
-        modLicense = "ARR" // for now
-        modGroup = project.group.toString()
-        modAuthor = "rdh"
-        replacementProperties.apply {
-            put("mod_issue_tracker", "https://todo.lol")
-        }
-    }
-
-    loom {
-        fabricLoaderVersion = "0.16.14"
-    }
-
-    moddevgradle {
-        enable {
-            "forge_version"().let {
-                if ("platform"() == "neoforge") {
-                    neoForgeVersion = "minecraft_version"().removePrefix("1.") + "." + it
-                } else {
-                    forgeVersion = "minecraft_version"() + "-" + it
-                }
-            }
-        }
-
-        defaultRuns(server = false)
-    }
-
-    mixin {
-        addMixinsToModManifest = true
-        configs.register("rust")
-    }
 }
 
 stonecutter {
@@ -73,8 +18,6 @@ stonecutter {
         put("forgelike", "platform"().let { it == "forge" || it == "neoforge" })
     }
 }
-
-apply(plugin = "xyz.wagyourtail.manifold")
 
 manifold {
     version = "2025.1.22"
@@ -89,15 +32,146 @@ manifold {
     }
 }
 
+fun applyLoom() {
+    apply(plugin = "fabric-loom")
+
+    repositories {
+        exclusiveContent {
+            forRepository { maven("https://maven.parchmentmc.org") }
+            filter { includeGroupAndSubgroups("org.parchmentmc") }
+        }
+    }
+
+    dependencies {
+        "minecraft"("com.mojang:minecraft:${"minecraft_version"()}")
+        "mappings"(loom.layered {
+            officialMojangMappings()
+            "parchment_version".maybe {
+                parchment("org.parchmentmc.data:parchment-${"minecraft_version"()}:${it}@zip")
+            }
+        })
+
+        "modImplementation"("net.fabricmc:fabric-loader:0.16.14")
+    }
+
+    loom {
+        mods {
+            create("rust") {
+                sourceSet(sourceSets.main.get())
+            }
+        }
+
+        runs {
+            named("client") {
+                client()
+                name("Fabric " + "minecraft_version"())
+                appendProjectPathToConfigName = false
+                ideConfigGenerated(true)
+            }
+
+            remove(getByName("server"))
+        }
+    }
+}
+
+fun applyMDG() {
+    apply(plugin = "net.neoforged.moddev")
+
+    neoForge {
+        version = "minecraft_version"().removePrefix("1.") + "." + "forge_version"()
+    }
+
+    applyGenericForge()
+}
+
+fun applyLegacyMDG() {
+    apply(plugin = "net.neoforged.moddev.legacyforge")
+
+    legacyForge {
+        version = "minecraft_version"() + "-" + "forge_version"()
+    }
+
+    applyGenericForge()
+}
+
+fun applyGenericForge() {
+    forge {
+        "parchment_version".maybe {
+            parchment {
+                minecraftVersion = "minecraft_version"()
+                mappingsVersion = it
+            }
+        }
+
+        mods.create("rust") {
+            modSourceSets.add(sourceSets.main)
+        }
+
+        runs {
+            create("yay") {
+                client()
+                this.ideName = "platform"().capitalized() + " " + "minecraft_version"()
+            }
+        }
+    }
+}
+
+when("platform"()) {
+    "fabric" -> applyLoom()
+    "neoforge" -> applyMDG()
+    "forge" -> applyLegacyMDG()
+    else -> error("Unrecognized mod platform")
+}
+
+tasks.processResources {
+    when("platform"()) {
+        "fabric" -> { exclude("META-INF/*.toml") }
+        "forge" -> { exclude("META-INF/neoforge.mods.toml", "fabric.mod.json") }
+        "neoforge" -> { exclude("META-INF/mods.toml", "fabric.mod.json") }
+        else -> error("Unknown platform: ${"platform"()}")
+    }
+
+    filesMatching(listOf("META-INF/*.toml", "fabric.mod.json", "pack.mcmeta")) {
+        expand(
+            "mod_issue_tracker" to "https://todo.lol",
+            "mod_license" to "ARR", // for now
+            "mod_id" to "rust",
+            "mod_version" to project.version.toString(),
+            "mod_name" to "RDH'S ULTIMATE SCREENSHOT TOOL",
+            "mod_description" to "screenshots if they were cool",
+            "mod_author" to "rdh",
+        )
+    }
+}
+
 dependencies {
     annotationProcessor(manifold("preprocessor"))
 }
 
 operator fun String.invoke() = findProperty(this)?.toString() ?: error("No property \"$this\"")
 fun String.maybe(block: (String) -> Unit) = findProperty(this)?.toString()?.let(block)
-fun Project.modstitch(block: dev.isxander.modstitch.base.extensions.ModstitchExtension.() -> Unit) {
-    the<dev.isxander.modstitch.base.extensions.ModstitchExtension>().apply(block)
-}
+
+val Project.manifold get() = the<xyz.wagyourtail.manifold.plugin.ManifoldExtension>()
 fun Project.manifold(block: xyz.wagyourtail.manifold.plugin.ManifoldExtension.() -> Unit) {
     manifold.apply(block)
+}
+
+val Project.loom get() = the<net.fabricmc.loom.api.LoomGradleExtensionAPI>()
+fun Project.loom(block: net.fabricmc.loom.api.LoomGradleExtensionAPI.() -> Unit) {
+    loom.apply(block)
+}
+
+val Project.forge get() = the<net.neoforged.moddevgradle.dsl.ModDevExtension>()
+fun Project.forge(block: net.neoforged.moddevgradle.dsl.ModDevExtension.() -> Unit) {
+    forge.apply(block)
+}
+
+val Project.neoForge get() = the<net.neoforged.moddevgradle.dsl.NeoForgeExtension>()
+fun Project.neoForge(block: net.neoforged.moddevgradle.dsl.NeoForgeExtension.() -> Unit) {
+    neoForge.apply(block)
+}
+
+val Project.legacyForge get() = the<net.neoforged.moddevgradle.legacyforge.dsl.LegacyForgeExtension>()
+fun Project.legacyForge(block: net.neoforged.moddevgradle.legacyforge.dsl.LegacyForgeExtension.() -> Unit) {
+    legacyForge.apply(block)
 }

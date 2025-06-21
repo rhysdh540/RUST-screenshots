@@ -52,7 +52,9 @@ public final class ScreenshotManager {
 			net.neoforged.neoforge.client.ClientHooks.fireRenderFramePre(net.minecraft.client.DeltaTracker.ZERO);
 			#endif
 			mc.gameRenderer.render(
-					#if MC > "20.1" net.minecraft.client.DeltaTracker.ZERO, #else 0, 0, #endif
+					#if MC > "20.1" net.minecraft.client.DeltaTracker.ZERO,
+					#else 0, 0,
+					#endif
 					true);
 			#if forge
 			net.minecraftforge.event.ForgeEventFactory.onRenderTickEnd(0);

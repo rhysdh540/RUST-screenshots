@@ -5,6 +5,7 @@
   "version": "${mod_version}",
   "description": "${mod_description}",
   "environment": "client",
+  "mixins": ["rust.mixins.json"],
   "entrypoints": {
     "client": ["dev.rdh.rust.RUST"]
   }
