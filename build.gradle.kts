@@ -10,6 +10,10 @@ run {
     val (mc, platform) = stonecutter.current.project.split("-")
     ext["minecraft_version"] = mc
     ext["platform"] = platform
+
+    project.group = rootProject.group
+    project.base.archivesName = "rust-${mc}-${platform}"
+    project.version = rootProject.version
 }
 
 stonecutter {
@@ -70,6 +74,10 @@ fun applyLoom() {
             }
 
             remove(getByName("server"))
+        }
+
+        mixin {
+            useLegacyMixinAp = false
         }
     }
 }

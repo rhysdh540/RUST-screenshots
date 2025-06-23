@@ -5,3 +5,4 @@ run/
 versions/*/build/
 versions/*/run/
 .DS_Store
+src/*/java/build.properties

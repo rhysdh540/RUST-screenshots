@@ -2,8 +2,7 @@ package dev.rdh.rust.customization;
 
 import net.minecraft.client.KeyMapping;
 
-public sealed interface ScreenshotConfig
-		permits CustomScreenshotConfig, VanillaScreenshotConfig {
+public interface ScreenshotConfig {
 
 	String getName();
 	KeyMapping key();

@@ -27,7 +27,11 @@ public final class ScreenshotManager {
 
 	private static final Path path = RUST.CONFIG_PATH.resolve("screenshots.json");
 	private static final Gson GSON = new GsonBuilder()
+			#if MC < "21.5"
 			.setLenient()
+			#else
+			.setStrictness(com.google.gson.Strictness.LENIENT)
+			#endif
 			.setPrettyPrinting()
 			.registerTypeHierarchyAdapter(ScreenshotConfig.class, new ScreenshotConfigTypeAdapter())
 			.create();
@@ -47,6 +51,10 @@ public final class ScreenshotManager {
 
 		} catch (Throwable t) {
 			RUST.LOGGER.error("Failed to load screenshot configs", t);
+		}
+
+		if (!ALL_CONFIGS.contains(VanillaScreenshotConfig.INSTANCE)) {
+			RUST.LOGGER.warn("Missing default screenshot config, adding it");
 			ALL_CONFIGS.add(VanillaScreenshotConfig.INSTANCE);
 		}
 
