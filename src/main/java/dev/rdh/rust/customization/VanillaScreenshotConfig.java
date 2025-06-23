@@ -41,12 +41,5 @@ public enum VanillaScreenshotConfig implements ScreenshotConfig {
 	public void toggleEnabled() {
 		enabled = !enabled;
 	}
-
-	@Override
-	public JsonElement toJson(Gson gson) {
-		JsonObject json = new JsonObject();
-		json.addProperty("type", "vanilla");
-		json.addProperty("enabled", enabled);
-		return json;
-	}
 }
+

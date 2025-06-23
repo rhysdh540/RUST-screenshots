@@ -1,10 +1,10 @@
 package dev.rdh.rust.customization;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
+
+import java.util.Objects;
 
 public final class CustomScreenshotConfig implements ScreenshotConfig {
 
@@ -14,16 +14,23 @@ public final class CustomScreenshotConfig implements ScreenshotConfig {
 	private final int height;
 	private boolean enabled = true;
 
-	public CustomScreenshotConfig(String name, KeyMapping key, int width, int height) {
-		this.key = key;
-		this.width = width;
-		this.height = height;
-
-		this.name = name;
+	public static String defaultName(int width, int height) {
+		return "Screenshot (" + width + "x" + height + ")";
 	}
 
-	public CustomScreenshotConfig(KeyMapping key, int width, int height) {
-		this("Screenshot (" + width + "x" + height + ")", key, width, height);
+	public CustomScreenshotConfig(String name, InputConstants.Key key, int width, int height) {
+		if (name == null || name.isBlank()) {
+			name = defaultName(width, height);
+		}
+
+		if (key == null) {
+			throw new IllegalArgumentException("KeyMapping cannot be null");
+		}
+
+		this.key = new KeyMapping("key.rust.screenshot." + name.hashCode(), key.getValue(), "key.categories.rust_generated");
+		this.width = width;
+		this.height = height;
+		this.name = name;
 	}
 
 	@Override
@@ -56,27 +63,26 @@ public final class CustomScreenshotConfig implements ScreenshotConfig {
 		return name;
 	}
 
-	@Override
-	public JsonElement toJson(Gson gson) {
-		JsonObject json = new JsonObject();
-		json.addProperty("type", "custom");
-		json.addProperty("name", name);
-		json.addProperty("width", width);
-		json.addProperty("height", height);
-		json.addProperty("enabled", enabled);
-		json.add("key", gson.toJsonTree(key));
-		return json;
+	public void setName(String name) {
+		if (name == null || name.isBlank()) {
+			name = defaultName(width, height);
+		}
+		this.name = name;
 	}
 
-	public static CustomScreenshotConfig fromJson(Gson gson, JsonObject json) {
-		String name = json.getAsJsonPrimitive("name").getAsString();
-		int width = json.getAsJsonPrimitive("width").getAsInt();
-		int height = json.getAsJsonPrimitive("height").getAsInt();
-		boolean enabled = json.getAsJsonPrimitive("enabled").getAsBoolean();
-		KeyMapping key = gson.fromJson(json.get("key"), KeyMapping.class);
-		CustomScreenshotConfig config = new CustomScreenshotConfig(name, key, width, height);
-		config.enabled = enabled;
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, key, width, height, enabled);
+	}
 
-		return config;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof CustomScreenshotConfig other)) return false;
+		return name.equals(other.name) &&
+				key.equals(other.key) &&
+				width == other.width &&
+				height == other.height &&
+				enabled == other.enabled;
 	}
 }

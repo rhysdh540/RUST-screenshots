@@ -2,22 +2,21 @@ package dev.rdh.rust.customization;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
-import org.lwjgl.glfw.GLFW;
 
 import dev.rdh.rust.RUST;
-import dev.rdh.rust.util.serialization.KeyMappingTypeAdapter;
+import dev.rdh.rust.util.serialization.ScreenshotConfigTypeAdapter;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,67 +26,42 @@ import java.util.Set;
 
 public final class ScreenshotManager {
 	public static final Set<ScreenshotConfig> ALL_CONFIGS = Collections.newSetFromMap(new Object2BooleanLinkedOpenHashMap<>());
+	private static final Type SCREENSHOT_CONFIG_SET_TYPE = TypeToken.getParameterized(Set.class, ScreenshotConfig.class).getType();
+
 	private static final Path path = RUST.CONFIG_PATH.resolve("screenshots.json");
 	private static final Gson GSON = new GsonBuilder()
 			.setLenient()
 			.setPrettyPrinting()
-			.registerTypeAdapter(KeyMapping.class, new KeyMappingTypeAdapter())
+			.registerTypeHierarchyAdapter(ScreenshotConfig.class, new ScreenshotConfigTypeAdapter())
 			.create();
 
 	static {
 		try {
 			if(!Files.exists(path)) {
-				JsonArray arr = new JsonArray();
-				arr.add(VanillaScreenshotConfig.INSTANCE.toJson(GSON));
 				Writer w = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-				GSON.toJson(arr, w);
+				GSON.toJson(Collections.singleton(VanillaScreenshotConfig.INSTANCE), Set.class, w);
 				w.flush();
 				w.close();
 			}
-			JsonArray json = GSON.fromJson(Files.newBufferedReader(path, StandardCharsets.UTF_8), JsonArray.class);
 
-			for (JsonElement element : json) {
-				if (element.isJsonObject()) {
-					JsonObject object = element.getAsJsonObject();
-					String type = object.getAsJsonPrimitive("type").getAsString();
-					if (type.equals("vanilla")) {
-						VanillaScreenshotConfig config = VanillaScreenshotConfig.INSTANCE;
-						config.enabled = object.getAsJsonPrimitive("enabled").getAsBoolean();
-						ALL_CONFIGS.add(config);
-					} else if (type.equals("custom")) {
-						ALL_CONFIGS.add(CustomScreenshotConfig.fromJson(GSON, object));
-					} else {
-						throw new RuntimeException("Unknown screenshot type: " + type);
-					}
-				}
-			}
+			ALL_CONFIGS.addAll(
+					GSON.fromJson(Files.newBufferedReader(path, StandardCharsets.UTF_8), SCREENSHOT_CONFIG_SET_TYPE)
+			);
+
 		} catch (Throwable t) {
 			RUST.LOGGER.error("Failed to load screenshot configs", t);
 			ALL_CONFIGS.add(VanillaScreenshotConfig.INSTANCE);
 		}
 
-		ALL_CONFIGS.add(new CustomScreenshotConfig(
-				new KeyMapping("key.rust.screenshot.5kx5k", GLFW.GLFW_KEY_F9, "key.categories.rust"),
-				5000, 5000
-		));
-
-		RUST.LOGGER.info("Loaded {} screenshots", ALL_CONFIGS.size());
+		RUST.LOGGER.info("Loaded {} screenshot configs", ALL_CONFIGS.size());
 
 		Runtime.getRuntime().addShutdownHook(new Thread(ScreenshotManager::saveConfigs));
 	}
 
 	private static void saveConfigs() {
-		try {
-			JsonArray arr = new JsonArray();
-			for (ScreenshotConfig config : ALL_CONFIGS) {
-				arr.add(config.toJson(GSON));
-			}
-
-			Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
-			Writer w = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-			gson.toJson(arr, JsonArray.class, w);
+		try(Writer w = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE)) {
+			GSON.toJson(ALL_CONFIGS, Set.class, w);
 			w.flush();
-			w.close();
 
 			RUST.LOGGER.info("Saved {} screenshot configs", ALL_CONFIGS.size());
 		} catch (Throwable t) {

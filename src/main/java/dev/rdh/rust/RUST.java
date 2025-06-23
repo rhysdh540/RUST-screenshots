@@ -24,8 +24,11 @@ public class RUST #if fabric implements net.fabricmc.api.ClientModInitializer #e
 	public static final Path CONFIG_PATH =
 			#if fabric
 			net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve(ID);
-			#else
-			#endif
+			#elif neoforge
+			net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get().resolve(ID);
+			#elif forge
+			net.minecraftforge.fml.loading.FMLPaths.CONFIGDIR.get().resolve(ID);
+			#else #error "Unsupported platform" #endif
 
 	static {
 		try {
