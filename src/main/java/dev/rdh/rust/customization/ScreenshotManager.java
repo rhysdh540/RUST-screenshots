@@ -3,15 +3,12 @@ package dev.rdh.rust.customization;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
 
 import dev.rdh.rust.RUST;
 import dev.rdh.rust.util.serialization.ScreenshotConfigTypeAdapter;
 
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 
@@ -86,8 +83,10 @@ public final class ScreenshotManager {
 			window.setHeight(newHeight);
 			mc.resizeDisplay();
 
+			#if MC < "21.5"
 			mc.getMainRenderTarget().bindWrite(true);
-			RenderSystem.enableCull();
+			com.mojang.blaze3d.systems.RenderSystem.enableCull();
+			#endif
 			#if forge
 			net.minecraftforge.event.ForgeEventFactory.onRenderTickStart(0);
 			#elif neoforge
@@ -103,7 +102,10 @@ public final class ScreenshotManager {
 			#elif neoforge
 			net.neoforged.neoforge.client.ClientHooks.fireRenderFramePost(net.minecraft.client.DeltaTracker.ZERO);
 			#endif
+
+			#if MC < "21.5"
 			mc.getMainRenderTarget().unbindWrite();
+			#endif
 		}
 
 		Screenshot.grab(mc.gameDirectory, mc.getMainRenderTarget(), component -> mc.execute(() -> mc.gui.getChat().addMessage(component)));

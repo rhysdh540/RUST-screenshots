@@ -25,12 +25,12 @@ stonecutter {
     centralScript = "build.gradle.kts"
 
     create(rootProject) {
-        fun mc(mcVersion: String, vararg loaders: String) =
+        fun add(mcVersion: String, vararg loaders: String) =
             loaders.forEach { vers("$mcVersion-$it", mcVersion) }
 
-        mc("1.20.1", "fabric", "forge")
-        mc("1.21.1", "fabric", "neoforge")
-        mc("1.21.5", "fabric", "neoforge")
+        add("1.20.1", "fabric", "forge")
+        add("1.21.1", "fabric", "neoforge")
+        add("1.21.5", "fabric", "neoforge")
 
         vcsVersion = "1.21.1-fabric"
     }
