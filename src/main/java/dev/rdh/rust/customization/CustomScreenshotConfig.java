@@ -34,6 +34,16 @@ public final class CustomScreenshotConfig implements ScreenshotConfig {
 	}
 
 	@Override
+	public String type() {
+		return "custom";
+	}
+
+	@Override
+	public String description() {
+		return width + "x" + height;
+	}
+
+	@Override
 	public KeyMapping key() {
 		return key;
 	}

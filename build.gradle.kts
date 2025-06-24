@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import xyz.wagyourtail.commonskt.utils.capitalized
 
 plugins {
@@ -146,7 +148,7 @@ tasks.processResources {
             "mod_issue_tracker" to "https://todo.lol",
             "mod_license" to "ARR", // for now
             "mod_id" to "rust",
-            "mod_version" to "0.0-dev",
+            "mod_version" to version,
             "mod_name" to "RDH'S ULTIMATE SCREENSHOT TOOL",
             "mod_description" to "screenshots if they were cool",
             "mod_author" to "rdh",

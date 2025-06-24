@@ -1,9 +1,5 @@
 package dev.rdh.rust.customization;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 
@@ -13,8 +9,18 @@ public enum VanillaScreenshotConfig implements ScreenshotConfig {
 	public boolean enabled = true;
 
 	@Override
+	public String type() {
+		return "vanilla";
+	}
+
+	@Override
 	public String getName() {
 		return "Vanilla Screenshot";
+	}
+
+	@Override
+	public String description() {
+		return "1x screen resolution";
 	}
 
 	@Override

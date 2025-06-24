@@ -19,7 +19,7 @@ public class ScreenshotConfigTypeAdapter extends TypeAdapter<ScreenshotConfig> {
 	public void write(JsonWriter out, ScreenshotConfig value) throws IOException {
 		out.beginObject();
 		out.name("type");
-		out.value(value == VanillaScreenshotConfig.INSTANCE ? "vanilla" : "custom");
+		out.value(value.type());
 
 		if (value != VanillaScreenshotConfig.INSTANCE) {
 			out.name("name").value(value.getName());

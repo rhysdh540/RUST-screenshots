@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import dev.rdh.rust.customization.ScreenshotManager;
 import dev.rdh.rust.customization.ScreenshotConfig;
+import dev.rdh.rust.ui.customization.ConfigListScreen;
 
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
@@ -28,7 +29,7 @@ public class KeyboardHandlerMixin {
 	@Inject(method = "keyPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;matches(II)Z", ordinal = 1), cancellable = true)
 	private void onKeyPress(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
 		if (Minecraft.getInstance().options.keyScreenshot.matches(key, scanCode) && Screen.hasShiftDown()) {
-			//Minecraft.getInstance().setScreen(new ScreenshotBrowser(Minecraft.getInstance().screen));
+			Minecraft.getInstance().setScreen(new ConfigListScreen(Minecraft.getInstance().screen));
 			return;
 		}
 
