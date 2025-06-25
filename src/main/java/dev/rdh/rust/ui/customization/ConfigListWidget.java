@@ -25,6 +25,8 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 			this.addEntry(new ConfigListEntry(config));
 		}
 
+		this.setSelected(this.getEntry(0));
+
 		this.setX(0);
 	}
 
@@ -35,18 +37,18 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 
 	@Override
 	protected int getScrollbarPosition() {
-		return this.getRight() - 6;
+		return this.getRight() - SCROLLBAR_WIDTH;
 	}
 
 	@Override
-	protected void renderSelection(GuiGraphics guiGraphics, int top, int width, int height, int outerColor, int innerColor) {
+	protected void renderSelection(GuiGraphics graphics, int top, int width, int height, int outerColor, int innerColor) {
 		if (this.scrollbarVisible()) {
 			int left = this.getRowLeft() - 2;
-			int right = this.getRight() - 6 - 1;
-			guiGraphics.fill(left, top - 2, right, top + height + 2, outerColor);
-			guiGraphics.fill(left + 1, top - 1, right - 1, top + height + 1, innerColor);
+			int right = this.getRight() - SCROLLBAR_WIDTH - 1;
+			graphics.fill(left, top - 2, right, top + height + 2, outerColor);
+			graphics.fill(left + 1, top - 1, right - 1, top + height + 1, innerColor);
 		} else {
-			super.renderSelection(guiGraphics, top, width, height, outerColor, innerColor);
+			super.renderSelection(graphics, top, width, height, outerColor, innerColor);
 		}
 	}
 
@@ -54,5 +56,21 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 	public void setSelected(ConfigListEntry entry) {
 		super.setSelected(entry);
 		parent.updateConfigDetails(entry.config);
+	}
+
+	public ConfigListEntry removeSelected() {
+		ConfigListEntry entry = this.getSelected();
+		if (entry == null) return null;
+
+		int index = this.children().indexOf(entry);
+
+		this.children().remove(entry);
+
+		ConfigListEntry newSelection = this.getEntry(Math.min(index, this.children().size() - 1));
+		this.setSelected(newSelection);
+
+		this.clampScrollAmount();
+
+		return entry;
 	}
 }

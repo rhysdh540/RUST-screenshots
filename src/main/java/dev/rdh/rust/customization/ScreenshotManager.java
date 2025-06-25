@@ -3,6 +3,7 @@ package dev.rdh.rust.customization;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
 
@@ -38,16 +39,12 @@ public final class ScreenshotManager {
 
 	static {
 		try {
-			if(!Files.exists(path)) {
-				Writer w = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-				GSON.toJson(Collections.singleton(VanillaScreenshotConfig.INSTANCE), Set.class, w);
-				w.flush();
-				w.close();
+			if(Files.exists(path)) {
+				ALL_CONFIGS.addAll(
+						GSON.fromJson(Files.newBufferedReader(path, StandardCharsets.UTF_8),
+								SCREENSHOT_CONFIG_SET_TYPE)
+				);
 			}
-
-			ALL_CONFIGS.addAll(
-					GSON.fromJson(Files.newBufferedReader(path, StandardCharsets.UTF_8), SCREENSHOT_CONFIG_SET_TYPE)
-			);
 
 		} catch (Throwable t) {
 			RUST.LOGGER.error("Failed to load screenshot configs", t);
@@ -58,13 +55,20 @@ public final class ScreenshotManager {
 			ALL_CONFIGS.add(VanillaScreenshotConfig.INSTANCE);
 		}
 
+		if (false) {
+			for (int i = 1; i <= 50; i++) {
+				var r = net.minecraft.util.RandomSource.create();
+				ALL_CONFIGS.add(new CustomScreenshotConfig("Test Config " + i, InputConstants.UNKNOWN, r.nextInt(50, 2000), r.nextInt(50, 2000)));
+			}
+		}
+
 		RUST.LOGGER.info("Loaded {} screenshot configs", ALL_CONFIGS.size());
 
 		Runtime.getRuntime().addShutdownHook(new Thread(ScreenshotManager::saveConfigs));
 	}
 
 	private static void saveConfigs() {
-		try(Writer w = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE)) {
+		try(Writer w = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 			GSON.toJson(ALL_CONFIGS, Set.class, w);
 			w.flush();
 

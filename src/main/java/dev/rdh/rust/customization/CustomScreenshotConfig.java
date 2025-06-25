@@ -10,8 +10,8 @@ public final class CustomScreenshotConfig implements ScreenshotConfig {
 
 	private String name;
 	private final KeyMapping key;
-	private final int width;
-	private final int height;
+	public int width;
+	public int height;
 	private boolean enabled = true;
 
 	public static String defaultName(int width, int height) {
