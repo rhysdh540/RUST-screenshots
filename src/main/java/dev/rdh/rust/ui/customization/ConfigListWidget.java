@@ -36,7 +36,7 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 	}
 
 	@Override
-	protected int getScrollbarPosition() {
+	protected int #if MC < "21.5" getScrollbarPosition #else scrollBarX #endif() {
 		return this.getRight() - SCROLLBAR_WIDTH;
 	}
 
@@ -69,7 +69,11 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 		ConfigListEntry newSelection = this.getEntry(Math.min(index, this.children().size() - 1));
 		this.setSelected(newSelection);
 
+		#if MC < "21.5"
 		this.clampScrollAmount();
+		#else
+		this.refreshScrollAmount();
+		#endif
 
 		return entry;
 	}
