@@ -1,10 +1,15 @@
 package dev.rdh.rust.ui.customization;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.InputConstants.Type;
+
 import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotManager;
 import dev.rdh.rust.customization.VanillaScreenshotConfig;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -21,6 +26,9 @@ public class ConfigEditorHelper {
 	private EditBox nameEditor;
 	private Button enabled;
 	private Button delete;
+
+	private Button keybindButton;
+	private boolean keybindSelected;
 
 	public ConfigEditorHelper(ConfigListScreen screen) {
 		this.screen = screen;
@@ -43,6 +51,15 @@ public class ConfigEditorHelper {
 				.tooltip(Tooltip.create(Component.literal(config.enabled() ? "Enabled" : "Disabled")))
 				.build();
 
+		keybindButton = Button.builder(config.key().getTranslatedKeyMessage(), b -> {
+					keybindSelected = true;
+					KeyMapping.resetMapping();
+					refreshKeybindButton();
+				})
+				.size(screen.width / 2 - 20, 20)
+				.pos(screen.width / 2 + 10, 50)
+				.build();
+
 		delete = Button.builder(Component.translatable("selectServer.delete"), b -> {
 			ScreenshotManager.ALL_CONFIGS.remove(screen.removeSelected());
 		})
@@ -53,6 +70,7 @@ public class ConfigEditorHelper {
 		addRenderableWidget.accept(nameEditor);
 		addRenderableWidget.accept(enabled);
 		addRenderableWidget.accept(delete);
+		addRenderableWidget.accept(keybindButton);
 
 		setConfig(VanillaScreenshotConfig.INSTANCE);
 	}
@@ -86,5 +104,47 @@ public class ConfigEditorHelper {
 		if (delete != null) {
 			delete.active = config instanceof CustomScreenshotConfig;
 		}
+
+		keybindSelected = false;
+		refreshKeybindButton();
+	}
+
+	private void refreshKeybindButton() {
+		if(keybindButton == null) return;
+
+		Component c = config.key().getTranslatedKeyMessage();
+		if (keybindSelected) {
+			c = Component.literal("> ")
+					.append(c.copy().withStyle(ChatFormatting.WHITE, ChatFormatting.UNDERLINE))
+					.append(Component.literal(" <"))
+					.withStyle(ChatFormatting.YELLOW);
+		}
+
+		keybindButton.setMessage(c);
+	}
+
+	public boolean onMouseClick(int button) {
+		if (keybindSelected) {
+			config.key().setKey(Type.MOUSE.getOrCreate(button));
+			keybindSelected = false;
+			refreshKeybindButton();
+			return true;
+		}
+		return false;
+	}
+
+	public boolean onKeyPress(int keyCode, int scanCode) {
+		if (keybindSelected) {
+			if (keyCode == InputConstants.KEY_ESCAPE) {
+				config.key().setKey(InputConstants.UNKNOWN);
+			} else {
+				config.key().setKey(InputConstants.getKey(keyCode, scanCode));
+			}
+
+			keybindSelected = false;
+			refreshKeybindButton();
+			return true;
+		}
+		return false;
 	}
 }

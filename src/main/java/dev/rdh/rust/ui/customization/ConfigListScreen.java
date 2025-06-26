@@ -76,6 +76,24 @@ public class ConfigListScreen extends Screen {
 	}
 	#endif
 
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (this.editor.onKeyPress(keyCode, scanCode)) {
+			return true;
+		} else {
+			return super.keyPressed(keyCode, scanCode, modifiers);
+		}
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (this.editor.onMouseClick(button)) {
+			return true;
+		} else {
+			return super.mouseClicked(mouseX, mouseY, button);
+		}
+	}
+
 	public void updateConfigDetails(ScreenshotConfig config) {
 		this.editor.setConfig(config);
 	}
