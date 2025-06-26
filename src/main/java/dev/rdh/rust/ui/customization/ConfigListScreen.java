@@ -52,6 +52,14 @@ public class ConfigListScreen extends Screen {
 		this.editor.init(this::addRenderableWidget, this.font);
 	}
 
+	#if MC < "21.0"
+	@Override
+	public void render(net.minecraft.client.gui.GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		this.renderDirtBackground(graphics);
+		super.render(graphics, mouseX, mouseY, delta);
+	}
+	#endif
+
 	public void updateConfigDetails(ScreenshotConfig config) {
 		this.editor.setConfig(config);
 	}

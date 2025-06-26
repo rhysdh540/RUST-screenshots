@@ -22,14 +22,17 @@ public class KeyboardHandlerMixin {
 	#endif
 	(method = "keyPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;matches(II)Z", ordinal = 1))
 
-	private boolean disableVanillaScreenshot #if forge (KeyMapping instance, int keysym, int scancode) #else (boolean original) #endif {
+	private boolean disableVanillaScreenshot #if forge (net.minecraft.client.KeyMapping instance, int keysym, int scancode)
+	#else (boolean original)
+	#endif {
 		return false;
 	}
 
 	@Inject(method = "keyPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;matches(II)Z", ordinal = 1), cancellable = true)
 	private void onKeyPress(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
-		if (Minecraft.getInstance().options.keyScreenshot.matches(key, scanCode) && Screen.hasShiftDown()) {
-			Minecraft.getInstance().setScreen(new ConfigListScreen(Minecraft.getInstance().screen));
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.options.keyScreenshot.matches(key, scanCode) && Screen.hasShiftDown() && !(mc.screen instanceof ConfigListScreen)) {
+			mc.setScreen(new ConfigListScreen(mc.screen));
 			return;
 		}
 

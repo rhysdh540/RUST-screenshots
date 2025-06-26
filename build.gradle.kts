@@ -101,6 +101,10 @@ fun applyLegacyMDG() {
         version = "minecraft_version"() + "-" + "forge_version"()
     }
 
+    mixin {
+        config("rust.mixins.json")
+    }
+
     applyGenericForge()
 }
 
@@ -186,4 +190,9 @@ fun Project.neoForge(block: net.neoforged.moddevgradle.dsl.NeoForgeExtension.() 
 val Project.legacyForge get() = the<net.neoforged.moddevgradle.legacyforge.dsl.LegacyForgeExtension>()
 fun Project.legacyForge(block: net.neoforged.moddevgradle.legacyforge.dsl.LegacyForgeExtension.() -> Unit) {
     legacyForge.apply(block)
+}
+
+val Project.mixin get() = the<net.neoforged.moddevgradle.legacyforge.dsl.MixinExtension>()
+fun Project.mixin(block: net.neoforged.moddevgradle.legacyforge.dsl.MixinExtension.() -> Unit) {
+    mixin.apply(block)
 }
