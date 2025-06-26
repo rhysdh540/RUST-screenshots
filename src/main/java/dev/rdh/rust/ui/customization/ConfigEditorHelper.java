@@ -44,7 +44,7 @@ public class ConfigEditorHelper {
 				.build();
 
 		delete = Button.builder(Component.translatable("selectServer.delete"), b -> {
-			ScreenshotManager.ALL_CONFIGS.remove(screen.list.removeSelected().config);
+			ScreenshotManager.ALL_CONFIGS.remove(screen.removeSelected());
 		})
 				.size(screen.width / 2 - 20, 20)
 				.pos(screen.width / 2 + 10, screen.height - 32 * 2)

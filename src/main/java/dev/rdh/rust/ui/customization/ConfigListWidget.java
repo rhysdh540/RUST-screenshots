@@ -65,28 +65,6 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 		parent.updateConfigDetails(entry.config);
 	}
 
-	public ConfigListEntry removeSelected() {
-		ConfigListEntry entry = this.getSelected();
-		if (entry == null) return null;
-
-		int index = this.children().indexOf(entry);
-
-		this.children().remove(entry);
-
-		ConfigListEntry newSelection = this.getEntry(Math.min(index, this.children().size() - 1));
-		this.setSelected(newSelection);
-
-		#if MC >= "21.5"
-		this.refreshScrollAmount();
-		#elif MC >= "21.0"
-		this.clampScrollAmount();
-		#else
-		this.setScrollAmount(this.getScrollAmount());
-		#endif
-
-		return entry;
-	}
-
 	public #if MC >= "21.0" static #endif class ConfigListEntry extends ObjectSelectionList.Entry<ConfigListEntry> {
 		public final ScreenshotConfig config;
 

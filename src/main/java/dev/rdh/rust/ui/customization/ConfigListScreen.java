@@ -1,6 +1,7 @@
 package dev.rdh.rust.ui.customization;
 
 import dev.rdh.rust.customization.ScreenshotConfig;
+import dev.rdh.rust.ui.customization.ConfigListWidget.ConfigListEntry;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
@@ -12,7 +13,7 @@ public class ConfigListScreen extends Screen {
 	private final Screen parent;
 
 	private final ConfigEditorHelper editor;
-	ConfigListWidget list;
+	private ConfigListWidget list;
 
 	public ConfigListScreen(Screen parent) {
 		super(Component.literal("Screenshot Configurations"));
@@ -62,5 +63,24 @@ public class ConfigListScreen extends Screen {
 
 	public void updateConfigDetails(ScreenshotConfig config) {
 		this.editor.setConfig(config);
+	}
+
+	public ScreenshotConfig removeSelected() {
+		ConfigListEntry entry = this.list.getSelected();
+		if(entry == null) return null;
+
+		int index = this.list.children().indexOf(entry);
+		this.list.children().remove(entry);
+		ConfigListEntry newSelection = this.list.children().get(Math.min(index, this.list.children().size() - 1));
+		this.list.setSelected(newSelection);
+		#if MC >= "21.5"
+		this.refreshScrollAmount();
+		#elif MC >= "21.0"
+		this.list.clampScrollAmount();
+		#else
+		this.setScrollAmount(this.getScrollAmount());
+		#endif
+
+		return entry.config;
 	}
 }
