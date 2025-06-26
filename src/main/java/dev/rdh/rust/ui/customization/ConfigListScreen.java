@@ -7,6 +7,7 @@ import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.ui.customization.ConfigListWidget.ConfigListEntry;
 
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,13 +17,12 @@ import net.minecraft.network.chat.Component;
 public class ConfigListScreen extends Screen {
 	private final Screen parent;
 
-	private final ConfigEditorHelper editor;
+	private ConfigEditorWidget editor;
 	private ConfigListWidget list;
 
 	public ConfigListScreen(Screen parent) {
 		super(Component.literal("Screenshot Configurations"));
 		this.parent = parent;
-		this.editor = new ConfigEditorHelper(this);
 	}
 
 	@Override
@@ -65,7 +65,15 @@ public class ConfigListScreen extends Screen {
 						.build()
 		);
 
-		this.editor.init(this::addRenderableWidget, this.font);
+		this.editor = new ConfigEditorWidget(
+				this,
+				this.width / 2 + 5,
+				30,
+				this.width / 2 - 10,
+				this.height - 36 * 2
+		);
+
+		this.addRenderableWidget(this.editor);
 	}
 
 	#if MC < "21.0"
@@ -95,7 +103,13 @@ public class ConfigListScreen extends Screen {
 	}
 
 	public void updateConfigDetails(ScreenshotConfig config) {
-		this.editor.setConfig(config);
+		if (editor != null) {
+			editor.setConfig(config);
+		}
+	}
+
+	public Font getFont() {
+		return this.font;
 	}
 
 	public ScreenshotConfig removeSelected() {
