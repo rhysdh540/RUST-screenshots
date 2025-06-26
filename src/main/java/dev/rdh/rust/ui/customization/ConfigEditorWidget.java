@@ -6,14 +6,16 @@ import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotManager;
 import dev.rdh.rust.customization.VanillaScreenshotConfig;
+import dev.rdh.rust.util.gui.AbstractContainerWidget;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
@@ -29,15 +31,18 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 	private final Button deleteButton;
 	private final EditBox nameEditor;
 
+	private final StringWidget keybindLabel;
 	private final Button keybindButton;
 	private boolean keybindSelected;
 
 	public ConfigEditorWidget(ConfigListScreen screen, int x, int y, int width, int height) {
 		super(x, y, width, height, CommonComponents.EMPTY);
 
+		Font font = screen.getFont();
+
 		this.config = VanillaScreenshotConfig.INSTANCE;
 
-		this.nameEditor = new EditBox(screen.getFont(), x, y, width - 20 - 5, 20, CommonComponents.EMPTY);
+		this.nameEditor = new EditBox(font, x, y, width - 20 - 5, 20, CommonComponents.EMPTY);
 
 		enabledButton = Button.builder(CommonComponents.EMPTY, b -> {
 			config.toggleEnabled();
@@ -47,13 +52,19 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 				.pos(x + width - 20, y)
 				.build();
 
+		keybindLabel = new StringWidget(
+				x, 55 + font.lineHeight / 2, width - 50, font.lineHeight,
+				Component.literal("Keybind:"),
+				font
+		).alignLeft();
+
 		keybindButton = Button.builder(CommonComponents.EMPTY, b -> {
 					keybindSelected = true;
 					KeyMapping.resetMapping();
 					refreshKeybindButton();
 		})
-				.size(width - 20, 20)
-				.pos(x + 10, 50)
+				.size(50, 20)
+				.pos(x + width - 50, 55)
 				.build();
 
 		deleteButton = Button.builder(Component.translatable("selectServer.delete"), b -> {
@@ -114,7 +125,7 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 
 	@Override
 	public List<AbstractWidget> children() {
-		return List.of(nameEditor, enabledButton, deleteButton, keybindButton);
+		return List.of(nameEditor, enabledButton, deleteButton, keybindButton, keybindLabel);
 	}
 
 	@Override
