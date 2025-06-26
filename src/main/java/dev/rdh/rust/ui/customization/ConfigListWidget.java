@@ -65,6 +65,14 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 		parent.updateConfigDetails(entry.config);
 	}
 
+	public void add(ScreenshotConfig config) {
+		ScreenshotManager.ALL_CONFIGS.add(config);
+		ConfigListEntry entry = new ConfigListEntry(config);
+		this.addEntry(entry);
+		this.setSelected(entry);
+		this.centerScrollOn(entry);
+	}
+
 	public #if MC >= "21.0" static #endif class ConfigListEntry extends ObjectSelectionList.Entry<ConfigListEntry> {
 		public final ScreenshotConfig config;
 

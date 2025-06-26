@@ -1,5 +1,9 @@
 package dev.rdh.rust.ui.customization;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.Window;
+
+import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.ui.customization.ConfigListWidget.ConfigListEntry;
 
@@ -50,6 +54,17 @@ public class ConfigListScreen extends Screen {
 						.build()
 		);
 
+		this.addRenderableWidget(
+				Button.builder(Component.literal("+"), b -> {
+					Window w = this.minecraft.getWindow();
+					ScreenshotConfig config = new CustomScreenshotConfig(null, InputConstants.UNKNOWN, w.getWidth(), w.getHeight());
+					this.list.add(config);
+				})
+						.size(18, 18)
+						.pos(width / 2 - 20 - 5, 8)
+						.build()
+		);
+
 		this.editor.init(this::addRenderableWidget, this.font);
 	}
 
@@ -74,11 +89,11 @@ public class ConfigListScreen extends Screen {
 		ConfigListEntry newSelection = this.list.children().get(Math.min(index, this.list.children().size() - 1));
 		this.list.setSelected(newSelection);
 		#if MC >= "21.5"
-		this.refreshScrollAmount();
+		this.list.refreshScrollAmount();
 		#elif MC >= "21.0"
 		this.list.clampScrollAmount();
 		#else
-		this.setScrollAmount(this.getScrollAmount());
+		this.list.setScrollAmount(this.list.getScrollAmount());
 		#endif
 
 		return entry.config;
