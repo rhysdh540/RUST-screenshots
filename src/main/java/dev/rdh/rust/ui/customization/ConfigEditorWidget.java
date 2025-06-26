@@ -46,7 +46,7 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 
 		enabledButton = Button.builder(CommonComponents.EMPTY, b -> {
 			config.toggleEnabled();
-			b.setMessage(Component.literal(config.enabled() ? "O" : "X"));
+			refreshEnabledButton();
 		})
 				.size(20, 20)
 				.pos(x + width - 20, y)
@@ -100,8 +100,7 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 
 		nameEditor.setValue(config.getName());
 
-		enabledButton.setMessage(Component.literal(config.enabled() ? "O" : "X"));
-		enabledButton.setTooltip(Tooltip.create(Component.literal(config.enabled() ? "Enabled" : "Disabled")));
+		refreshEnabledButton();
 
 		deleteButton.active = !vanilla;
 
@@ -109,8 +108,12 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 		refreshKeybindButton();
 	}
 
+	private void refreshEnabledButton() {
+		enabledButton.setMessage(Component.literal(config.enabled() ? "O" : "X"));
+		enabledButton.setTooltip(Tooltip.create(Component.literal(config.enabled() ? "Enabled" : "Disabled")));
+	}
+
 	private void refreshKeybindButton() {
-		if(keybindButton == null) return;
 
 		Component c = config.key().getTranslatedKeyMessage();
 		if (keybindSelected) {
