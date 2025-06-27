@@ -7,6 +7,7 @@ import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotManager;
 import dev.rdh.rust.customization.VanillaScreenshotConfig;
 import dev.rdh.rust.util.gui.AbstractContainerWidget;
+import dev.rdh.rust.util.gui.StretchingLabeledWidget;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
@@ -31,8 +32,7 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 	private final Button deleteButton;
 	private final EditBox nameEditor;
 
-	private final StringWidget keybindLabel;
-	private final Button keybindButton;
+	private final StretchingLabeledWidget<Button> keybindButton;
 	private boolean keybindSelected;
 
 	public ConfigEditorWidget(ConfigListScreen screen, int x, int y, int width, int height) {
@@ -52,19 +52,18 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 				.pos(x + width - 20, y)
 				.build();
 
-		keybindLabel = new StringWidget(
-				x, 55 + font.lineHeight / 2, width - 50, font.lineHeight,
-				Component.literal("Keybind:"),
-				font
-		).alignLeft();
-
-		keybindButton = Button.builder(CommonComponents.EMPTY, b -> {
+		Button key = Button.builder(CommonComponents.EMPTY, b -> {
 					keybindSelected = true;
 					KeyMapping.resetMapping();
 					refreshKeybindButton();
 		})
 				.size(50, 20)
-				.pos(x + width - 50, 55)
+				.build();
+
+		keybindButton = StretchingLabeledWidget.containing(key)
+				.label(Component.literal("Keybind:"), font)
+				.pos(x + 5, 55)
+				.size(width - 10, 20)
 				.build();
 
 		deleteButton = Button.builder(Component.translatable("selectServer.delete"), b -> {
@@ -123,12 +122,12 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 					.withStyle(ChatFormatting.YELLOW);
 		}
 
-		keybindButton.setMessage(c);
+		keybindButton.widget.setMessage(c);
 	}
 
 	@Override
 	public List<AbstractWidget> children() {
-		return List.of(nameEditor, enabledButton, deleteButton, keybindButton, keybindLabel);
+		return List.of(nameEditor, enabledButton, deleteButton, keybindButton);
 	}
 
 	@Override
