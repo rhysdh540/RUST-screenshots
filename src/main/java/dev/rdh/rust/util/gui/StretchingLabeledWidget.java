@@ -44,6 +44,13 @@ public class StretchingLabeledWidget<W extends AbstractWidget> extends AbstractC
 		return List.of(widget, label);
 	}
 
+	@Override
+	public void setFocused(boolean focused) {
+		super.setFocused(focused);
+		widget.setFocused(focused);
+		label.setFocused(focused);
+	}
+
 	public static <W extends AbstractWidget> Builder<W> containing(W widget) {
 		return new Builder<>(widget);
 	}

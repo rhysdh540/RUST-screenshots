@@ -10,8 +10,8 @@ public final class CustomScreenshotConfig implements ScreenshotConfig {
 
 	private String name;
 	private final KeyMapping key;
-	public int width;
-	public int height;
+	private int width;
+	private int height;
 	private boolean enabled = true;
 
 	public static String defaultName(int width, int height) {
@@ -94,5 +94,19 @@ public final class CustomScreenshotConfig implements ScreenshotConfig {
 				width == other.width &&
 				height == other.height &&
 				enabled == other.enabled;
+	}
+
+	public void setWidth(int width) {
+		if (width <= 0) {
+			throw new IllegalArgumentException("Width must be greater than 0");
+		}
+		this.width = width;
+	}
+
+	public void setHeight(int height) {
+		if (height <= 0) {
+			throw new IllegalArgumentException("Height must be greater than 0");
+		}
+		this.height = height;
 	}
 }
