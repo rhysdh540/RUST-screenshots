@@ -55,10 +55,9 @@ public final class ScreenshotManager {
 			ALL_CONFIGS.add(VanillaScreenshotConfig.INSTANCE);
 		}
 
-		if (false) {
+		if (RUST.IS_DEV_ENV && ALL_CONFIGS.size() == 1) {
 			for (int i = 1; i <= 50; i++) {
-				var r = net.minecraft.util.RandomSource.create();
-				ALL_CONFIGS.add(new CustomScreenshotConfig("Test Config " + i, InputConstants.UNKNOWN, r.nextInt(50, 2000), r.nextInt(50, 2000)));
+				ALL_CONFIGS.add(new CustomScreenshotConfig("Test Config " + i, InputConstants.UNKNOWN, i * 20, i * 10));
 			}
 		}
 

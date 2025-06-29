@@ -73,7 +73,7 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 		keybindButton = StretchingLabeledWidget.containing(button)
 				.label(Component.literal("Keybind:"), font)
 				.pos(x + 5, 55)
-				.size(width - 10, 20)
+				.size(width - 5, 20)
 				.build();
 
 		Predicate<String> intFilter = s -> {
@@ -87,14 +87,14 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 		widthEditor = StretchingLabeledWidget.containing(new EditBox(font, 0, 0, 75, 20, CommonComponents.EMPTY))
 				.label(Component.literal("Width"), font)
 				.pos(x + 5, keybindButton.getY() + keybindButton.getHeight() + 5)
-				.size(width - 10, 20)
+				.size(width - 5, 20)
 				.build();
 		widthEditor.widget.setFilter(intFilter);
 
 		heightEditor = StretchingLabeledWidget.containing(new EditBox(font, 0, 0, 75, 20, CommonComponents.EMPTY))
 				.label(Component.literal("Height"), font)
 				.pos(x + 5, widthEditor.getY() + widthEditor.getHeight() + 5)
-				.size(width - 10, 20)
+				.size(width - 5, 20)
 				.build();
 		heightEditor.widget.setFilter(intFilter);
 

@@ -21,6 +21,17 @@ public class RUST #if fabric implements net.fabricmc.api.ClientModInitializer #e
 	public static final String ID = "rust";
 	public static final Logger LOGGER = LoggerFactory.getLogger("RUST");
 
+	public static final boolean IS_DEV_ENV =
+			#if fabric
+			net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()
+			#elif neoforge
+			!net.neoforged.fml.loading.FMLLoader.isProduction()
+			#elif forge
+			!net.minecraftforge.fml.loading.FMLLoader.isProduction()
+			#else
+			net.minecraft.SharedConstants.IS_RUNNING_IN_IDE
+			#endif;
+
 	public static final Path CONFIG_PATH =
 			#if fabric
 			net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve(ID);
