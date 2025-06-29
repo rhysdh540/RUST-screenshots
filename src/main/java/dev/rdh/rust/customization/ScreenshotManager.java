@@ -28,7 +28,7 @@ public final class ScreenshotManager {
 
 	private static final Path path = RUST.CONFIG_PATH.resolve("screenshots.json");
 	private static final Gson GSON = new GsonBuilder()
-			#if MC < "21.5"
+			#if MC < 21.5
 			.setLenient()
 			#else
 			.setStrictness(com.google.gson.Strictness.LENIENT)
@@ -38,6 +38,7 @@ public final class ScreenshotManager {
 			.create();
 
 	static {
+		ALL_CONFIGS.add(VanillaScreenshotConfig.INSTANCE);
 		try {
 			if(Files.exists(path)) {
 				ALL_CONFIGS.addAll(
@@ -48,11 +49,6 @@ public final class ScreenshotManager {
 
 		} catch (Throwable t) {
 			RUST.LOGGER.error("Failed to load screenshot configs", t);
-		}
-
-		if (!ALL_CONFIGS.contains(VanillaScreenshotConfig.INSTANCE)) {
-			RUST.LOGGER.warn("Missing default screenshot config, adding it");
-			ALL_CONFIGS.add(VanillaScreenshotConfig.INSTANCE);
 		}
 
 		if (RUST.IS_DEV_ENV && ALL_CONFIGS.size() == 1) {
@@ -94,7 +90,7 @@ public final class ScreenshotManager {
 			window.setHeight(newHeight);
 			mc.resizeDisplay();
 
-			#if MC < "21.5"
+			#if MC < 21.5
 			mc.getMainRenderTarget().bindWrite(true);
 			com.mojang.blaze3d.systems.RenderSystem.enableCull();
 			#endif
@@ -104,7 +100,7 @@ public final class ScreenshotManager {
 			net.neoforged.neoforge.client.ClientHooks.fireRenderFramePre(net.minecraft.client.DeltaTracker.ZERO);
 			#endif
 			mc.gameRenderer.render(
-					#if MC > "20.1" net.minecraft.client.DeltaTracker.ZERO,
+					#if MC > 20.1 net.minecraft.client.DeltaTracker.ZERO,
 					#else 0, 0,
 					#endif
 					true);
@@ -114,7 +110,7 @@ public final class ScreenshotManager {
 			net.neoforged.neoforge.client.ClientHooks.fireRenderFramePost(net.minecraft.client.DeltaTracker.ZERO);
 			#endif
 
-			#if MC < "21.5"
+			#if MC < 21.5
 			mc.getMainRenderTarget().unbindWrite();
 			#endif
 		}

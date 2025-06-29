@@ -85,10 +85,6 @@ public class ScreenshotConfigTypeAdapter extends TypeAdapter<ScreenshotConfig> {
 				throw new IOException("Invalid dimensions in custom screenshot config: " + width + "x" + height);
 			}
 
-			if (name == null || name.isBlank()) {
-				name = CustomScreenshotConfig.defaultName(width, height);
-			}
-
 			config = new CustomScreenshotConfig(name, key, width, height);
 		} else {
 			throw new IOException("Unknown screenshot config type: " + type);

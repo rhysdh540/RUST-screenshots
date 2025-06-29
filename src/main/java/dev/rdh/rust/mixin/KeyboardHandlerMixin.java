@@ -13,17 +13,21 @@ import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 
+#if !forge
+#define mixinextras
+#endif
+
 @Mixin(KeyboardHandler.class)
 public class KeyboardHandlerMixin {
-	#if forge
-	@org.spongepowered.asm.mixin.injection.Redirect
-	#else
+	#if mixinextras
 	@com.llamalad7.mixinextras.injector.ModifyExpressionValue
+	#else
+	@org.spongepowered.asm.mixin.injection.Redirect
 	#endif
 	(method = "keyPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;matches(II)Z", ordinal = 1))
 
-	private boolean disableVanillaScreenshot #if forge (net.minecraft.client.KeyMapping instance, int keysym, int scancode)
-	#else (boolean original)
+	private boolean disableVanillaScreenshot #if mixinextras (boolean original)
+	#else (net.minecraft.client.KeyMapping instance, int keysym, int scancode)
 	#endif {
 		return false;
 	}

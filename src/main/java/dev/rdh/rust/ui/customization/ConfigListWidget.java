@@ -21,7 +21,7 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 			int y,
 			int itemHeight
 	) {
-		super(mc, width, height, y, #if MC <= "20.1" y + height, #endif itemHeight);
+		super(mc, width, height, y, #if MC <= 20.1 y + height, #endif itemHeight);
 		this.parent = parent;
 
 		for (ScreenshotConfig config : ScreenshotManager.ALL_CONFIGS) {
@@ -37,15 +37,15 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 	}
 
 	@Override
-	protected int #if MC < "21.5" getScrollbarPosition #else scrollBarX #endif() {
-		#if MC >= "21.0"
+	protected int #if MC < 21.5 getScrollbarPosition #else scrollBarX #endif() {
+		#if MC >= 21.0
 		return this.getRight() - SCROLLBAR_WIDTH;
 		#else
 		return this.x1 - 6;
 		#endif
 	}
 
-	#if MC >= "21.0"
+	#if MC >= 21.0
 	@Override
 	protected void renderSelection(GuiGraphics graphics, int top, int width, int height, int outerColor, int innerColor) {
 		if (this.scrollbarVisible()) {
@@ -73,7 +73,7 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 		this.centerScrollOn(entry);
 	}
 
-	public #if MC >= "21.0" static #endif class ConfigListEntry extends ObjectSelectionList.Entry<ConfigListEntry> {
+	public #if MC >= 21.0 static #endif class ConfigListEntry extends ObjectSelectionList.Entry<ConfigListEntry> {
 		public final ScreenshotConfig config;
 
 		public ConfigListEntry(ScreenshotConfig config) {
@@ -98,7 +98,7 @@ public class ConfigListWidget extends ObjectSelectionList<ConfigListEntry> {
 			graphics.drawString(font, config.description(), x, y, color);
 		}
 
-		#if MC < "21.0"
+		#if MC < 21.0
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			if (button == 0) {

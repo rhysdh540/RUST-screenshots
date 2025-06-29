@@ -76,7 +76,7 @@ public class ConfigListScreen extends Screen {
 		this.addRenderableWidget(this.editor);
 	}
 
-	#if MC < "21.0"
+	#if MC < 21.0
 	@Override
 	public void render(net.minecraft.client.gui.GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		this.renderDirtBackground(graphics);
@@ -120,9 +120,9 @@ public class ConfigListScreen extends Screen {
 		this.list.children().remove(entry);
 		ConfigListEntry newSelection = this.list.children().get(Math.min(index, this.list.children().size() - 1));
 		this.list.setSelected(newSelection);
-		#if MC >= "21.5"
+		#if MC >= 21.5
 		this.list.refreshScrollAmount();
-		#elif MC >= "21.0"
+		#elif MC >= 21.0
 		this.list.clampScrollAmount();
 		#else
 		this.list.setScrollAmount(this.list.getScrollAmount());

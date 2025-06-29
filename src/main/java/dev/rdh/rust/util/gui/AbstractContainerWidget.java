@@ -1,14 +1,16 @@
 package dev.rdh.rust.util.gui;
 
+import net.minecraft.network.chat.Component;
+#if MC <= 20.1
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
-import net.minecraft.network.chat.Component;
+#endif
 
 public abstract class AbstractContainerWidget
-	#if MC <= "20.1"
+	#if MC <= 20.1
 		extends AbstractWidget implements ContainerEventHandler
 	#else
 	extends net.minecraft.client.gui.components.AbstractContainerWidget
@@ -18,7 +20,7 @@ public abstract class AbstractContainerWidget
 		super(x, y, width, height, message);
 	}
 
-	#if MC <= "20.1"
+	#if MC <= 20.1
 	@javax.annotation.Nullable
 	private GuiEventListener focused;
 	private boolean isDragging;
@@ -84,7 +86,7 @@ public abstract class AbstractContainerWidget
 	}
 	#endif
 
-	#if MC >= "21.5"
+	#if MC >= 21.5
 	@Override
 	protected int contentHeight() {
 		return this.getHeight();
