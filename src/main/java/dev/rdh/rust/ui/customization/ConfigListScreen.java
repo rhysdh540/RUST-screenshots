@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.Window;
 import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.ui.customization.ConfigListWidget.ConfigListEntry;
+import dev.rdh.rust.util.gui.ScreenWithParent;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -14,41 +15,34 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
-public class ConfigListScreen extends Screen {
-	private final Screen parent;
+public class ConfigListScreen extends ScreenWithParent {
 
 	private ConfigEditorWidget editor;
 	private ConfigListWidget list;
 
 	public ConfigListScreen(Screen parent) {
-		super(Component.literal("Screenshot Configurations"));
-		this.parent = parent;
+		super(parent, Component.literal("Screenshot Configurations"));
 	}
 
 	@Override
 	public void init() {
-		super.init();
-
 		this.addRenderableOnly(new StringWidget(
 				0, 10,
 				this.width / 2, 15,
 				this.title, this.font
 		).alignCenter());
 
-		this.list = new ConfigListWidget(
+		this.list = addRenderableWidget(new ConfigListWidget(
 				this.minecraft,
 				this,
 				this.width / 2,
 				this.height - 36 * 2,
 				30,
 				font.lineHeight * 3
-		);
-
-		this.addRenderableWidget(this.list);
+		));
 
 		this.addRenderableWidget(
-				Button.builder(CommonComponents.GUI_DONE,
-								button -> this.minecraft.setScreen(this.parent))
+				Button.builder(CommonComponents.GUI_DONE, b -> this.onClose())
 						.size(200, 20)
 						.pos(width / 2 - 100, height - 32)
 						.build()
@@ -56,24 +50,22 @@ public class ConfigListScreen extends Screen {
 
 		this.addRenderableWidget(
 				Button.builder(Component.literal("+"), b -> {
-					Window w = this.minecraft.getWindow();
-					ScreenshotConfig config = new CustomScreenshotConfig(null, InputConstants.UNKNOWN, w.getWidth(), w.getHeight());
-					this.list.add(config);
-				})
+							Window w = this.minecraft.getWindow();
+							ScreenshotConfig config = new CustomScreenshotConfig(null, InputConstants.UNKNOWN, w.getWidth(), w.getHeight());
+							this.list.add(config);
+						})
 						.size(18, 18)
 						.pos(width / 2 - 20 - 5, 8)
 						.build()
 		);
 
-		this.editor = new ConfigEditorWidget(
+		this.editor = addRenderableWidget(new ConfigEditorWidget(
 				this,
 				this.width / 2 + 5,
 				30,
 				this.width / 2 - 10,
 				this.height - 36 * 2
-		);
-
-		this.addRenderableWidget(this.editor);
+		));
 	}
 
 	#if MC < 21.0
@@ -113,21 +105,11 @@ public class ConfigListScreen extends Screen {
 	}
 
 	public ScreenshotConfig removeSelected() {
-		ConfigListEntry entry = this.list.getSelected();
-		if(entry == null) return null;
-
-		int index = this.list.children().indexOf(entry);
-		this.list.children().remove(entry);
-		ConfigListEntry newSelection = this.list.children().get(Math.min(index, this.list.children().size() - 1));
-		this.list.setSelected(newSelection);
-		#if MC >= 21.5
-		this.list.refreshScrollAmount();
-		#elif MC >= 21.0
-		this.list.clampScrollAmount();
-		#else
-		this.list.setScrollAmount(this.list.getScrollAmount());
-		#endif
-
-		return entry.config;
+		ConfigListEntry entry = this.list.removeSelected();
+		if (entry != null) {
+			return entry.config;
+		} else {
+			return null;
+		}
 	}
 }

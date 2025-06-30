@@ -1,6 +1,16 @@
 package dev.rdh.rust.util.gui;
 
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceImmutableList;
+
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.CommonComponents;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.List;
+
 #if MC <= 20.1
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -16,8 +26,42 @@ public abstract class AbstractContainerWidget
 	extends net.minecraft.client.gui.components.AbstractContainerWidget
 	#endif
 {
+
+	private final List<AbstractWidget> children;
+
 	public AbstractContainerWidget(int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
+		this.children = new ReferenceArrayList<>();
+	}
+
+	public AbstractContainerWidget(int x, int y, int width, int height) {
+		this(x, y, width, height, CommonComponents.EMPTY);
+	}
+
+	@Override
+	public List<AbstractWidget> children() {
+		return new ReferenceImmutableList<>(children);
+	}
+
+	protected final <T extends AbstractWidget> T addChild(T child) {
+		children.add(child);
+		return child;
+	}
+
+	protected final void addChildrenFromFields() {
+		try {
+			for (Field field : getClass().getDeclaredFields()) {
+				if (!Modifier.isStatic(field.getModifiers()) && AbstractWidget.class.isAssignableFrom(field.getType())) {
+					AbstractWidget widget = (AbstractWidget) field.get(this);
+					if (widget != null) {
+						addChild(widget);
+					}
+				}
+			}
+
+		} catch (Throwable t) {
+			throw new RuntimeException("Failed to access widget fields", t);
+		}
 	}
 
 	#if MC <= 20.1

@@ -4,11 +4,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-
-import java.util.List;
 
 /**
  * Contains a widget (right aligned) and a label (left aligned) inside a space.
@@ -20,11 +17,11 @@ public class StretchingLabeledWidget<W extends AbstractWidget> extends AbstractC
 
 	private StretchingLabeledWidget(int x, int y, int width, int height, Component label, Font font, W widget) {
 		super(x, y, width, height, label);
-		this.widget = widget;
+		this.widget = addChild(widget);
 
 		widget.setPosition(x + width - widget.getWidth(), y);
 
-		this.label = new StringWidget(x, y, width - widget.getWidth(), height, label, font).alignLeft();
+		this.label = addChild(new StringWidget(x, y, width - widget.getWidth(), height, label, font).alignLeft());
 	}
 
 	@Override
@@ -37,11 +34,6 @@ public class StretchingLabeledWidget<W extends AbstractWidget> extends AbstractC
 	protected void updateWidgetNarration(NarrationElementOutput output) {
 		label.updateNarration(output);
 		widget.updateNarration(output);
-	}
-
-	@Override
-	public List<? extends GuiEventListener> children() {
-		return List.of(widget, label);
 	}
 
 	@Override

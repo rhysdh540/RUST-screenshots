@@ -23,10 +23,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Predicate;
 
 public class ConfigEditorWidget extends AbstractContainerWidget {
@@ -43,10 +39,8 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 	private final StretchingLabeledWidget<EditBox> widthEditor;
 	private final StretchingLabeledWidget<EditBox> heightEditor;
 
-	private final List<AbstractWidget> children;
-
 	public ConfigEditorWidget(ConfigListScreen screen, int x, int y, int width, int height) {
-		super(x, y, width, height, CommonComponents.EMPTY);
+		super(x, y, width, height);
 
 		Font font = screen.getFont();
 
@@ -105,21 +99,7 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 				.pos(x, y + height - 20)
 				.build();
 
-		try {
-			List<AbstractWidget> children = new ArrayList<>();
-			for (Field field : ConfigEditorWidget.class.getDeclaredFields()) {
-				if (AbstractWidget.class.isAssignableFrom(field.getType())) {
-					AbstractWidget widget = (AbstractWidget) field.get(this);
-					if (widget != null) {
-						children.add(widget);
-					}
-				}
-			}
-
-			this.children = Collections.unmodifiableList(children);
-		} catch (Throwable t) {
-			throw new RuntimeException("Failed to access widget fields", t);
-		}
+		addChildrenFromFields();
 
 		setConfig(this.config);
 	}
@@ -204,11 +184,6 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 		}
 
 		keybindButton.widget.setMessage(c);
-	}
-
-	@Override
-	public List<AbstractWidget> children() {
-		return children;
 	}
 
 	@Override

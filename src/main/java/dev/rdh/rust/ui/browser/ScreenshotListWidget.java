@@ -1,8 +1,8 @@
-package dev.rdh.rust.ui.customization;
+package dev.rdh.rust.ui.browser;
 
 import dev.rdh.rust.customization.ScreenshotConfig;
-import dev.rdh.rust.customization.ScreenshotManager;
-import dev.rdh.rust.ui.customization.ConfigListWidget.ConfigListEntry;
+import dev.rdh.rust.ui.browser.ScreenshotListWidget.ScreenshotEntry;
+import dev.rdh.rust.ui.customization.ConfigListScreen;
 import dev.rdh.rust.util.gui.SelectionList;
 
 import net.minecraft.client.Minecraft;
@@ -11,10 +11,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 
-public class ConfigListWidget extends SelectionList<ConfigListEntry> {
+public class ScreenshotListWidget extends SelectionList<ScreenshotEntry> {
 	private final ConfigListScreen parent;
 
-	public ConfigListWidget(
+	public ScreenshotListWidget(
 			Minecraft mc,
 			ConfigListScreen parent,
 			int width,
@@ -25,31 +25,13 @@ public class ConfigListWidget extends SelectionList<ConfigListEntry> {
 		super(mc, width, height, y, #if MC <= 20.1 y + height, #endif itemHeight);
 		this.parent = parent;
 
-		for (ScreenshotConfig config : ScreenshotManager.ALL_CONFIGS) {
-			this.addEntry(new ConfigListEntry(config));
-		}
-
 		this.setSelected(this.getEntry(0));
 	}
 
-	@Override
-	public void setSelected(ConfigListEntry entry) {
-		super.setSelected(entry);
-		parent.updateConfigDetails(entry.config);
-	}
-
-	public void add(ScreenshotConfig config) {
-		ScreenshotManager.ALL_CONFIGS.add(config);
-		ConfigListEntry entry = new ConfigListEntry(config);
-		this.addEntry(entry);
-		this.setSelected(entry);
-		this.centerScrollOn(entry);
-	}
-
-	public #if MC >= 21.0 static #endif class ConfigListEntry extends SelectionList.Entry<ConfigListEntry> {
+	public #if MC >= 21.0 static #endif class ScreenshotEntry extends SelectionList.Entry<ScreenshotEntry> {
 		public final ScreenshotConfig config;
 
-		public ConfigListEntry(ScreenshotConfig config) {
+		public ScreenshotEntry(ScreenshotConfig config) {
 			this.config = config;
 		}
 
@@ -70,5 +52,16 @@ public class ConfigListWidget extends SelectionList<ConfigListEntry> {
 			y += font.lineHeight + 2;
 			graphics.drawString(font, config.description(), x, y, color);
 		}
+
+		#if MC < 21.0
+		@Override
+		public boolean mouseClicked(double mouseX, double mouseY, int button) {
+			if (button == 0) {
+				ScreenshotListWidget.this.setSelected(this);
+				return true;
+			}
+			return false;
+		}
+		#endif
 	}
 }
