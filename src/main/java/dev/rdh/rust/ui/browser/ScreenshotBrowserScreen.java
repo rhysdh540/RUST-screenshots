@@ -7,12 +7,14 @@ import dev.rdh.rust.util.gui.ScreenWithParent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 
 public class ScreenshotBrowserScreen extends ScreenWithParent {
+
+	private ScreenshotListWidget list;
 
 	public ScreenshotBrowserScreen(Screen parent) {
 		super(parent, Component.literal("Screenshots"));
@@ -20,18 +22,26 @@ public class ScreenshotBrowserScreen extends ScreenWithParent {
 
 	@Override
 	public void init() {
-		Path folder = this.minecraft.gameDirectory.toPath().resolve("screenshots");
 		List<Path> allScreenshots = new ReferenceArrayList<>();
 
-		try {
-			Files.walk(folder)
-					.filter(Files::isRegularFile)
-					.filter(f -> f.getFileName().endsWith(".png"))
-					.forEach(allScreenshots::add);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		Path screenshotsDir = minecraft.gameDirectory.toPath().resolve("screenshots");
+		if (!Files.exists(screenshotsDir)) {
+			Files.createDirectories(screenshotsDir);
 		}
 
+		Files.walk(screenshotsDir)
+				.sorted(Comparator.comparingLong(path -> -path.toFile().lastModified()))
+				.filter(Files::isRegularFile)
+				.filter(path -> path.toString().endsWith(".png"))
+				.forEach(allScreenshots::add);
 
+		this.list = this.addRenderableWidget(new ScreenshotListWidget(
+				this.minecraft,
+				200,
+				this.height - 36 * 2,
+				30,
+				36,
+				allScreenshots
+		));
 	}
 }

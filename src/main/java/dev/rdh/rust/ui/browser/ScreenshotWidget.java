@@ -24,7 +24,18 @@ public class ScreenshotWidget extends AbstractContainerWidget {
 			throw new RuntimeException("Failed to read screenshot image from " + path, e);
 		}
 
-		this.image = addChild(new ImageWidget(x, y, width, nImage));
+		int imageWidth, imageHeight;
+		if (nImage.getWidth() > nImage.getHeight()) {
+			double ratio = (double) width / nImage.getWidth();
+			imageWidth = width;
+			imageHeight = (int) (nImage.getHeight() * ratio);
+		} else {
+			double ratio = (double) height / nImage.getHeight();
+			imageWidth = (int) (nImage.getWidth() * ratio);
+			imageHeight = height;
+		}
+
+		this.image = addChild(new ImageWidget(x, y, imageWidth, imageHeight, nImage));
 	}
 
 	@Override

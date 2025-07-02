@@ -1,5 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
+import net.fabricmc.loom.util.gradle.SourceSetReference
 import xyz.wagyourtail.commonskt.utils.capitalized
 
 plugins {
@@ -26,7 +27,8 @@ stonecutter {
 }
 
 manifold {
-    version = "2025.1.22"
+    version = "manifold_version"()
+    bootstrap = false
 
     preprocessor {
         config {
@@ -36,6 +38,10 @@ manifold {
             }
         }
     }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
 }
 
 fun applyLoom() {
@@ -63,7 +69,7 @@ fun applyLoom() {
     loom {
         mods {
             create("rust") {
-                sourceSet(sourceSets.main.get())
+                modSourceSets.add(sourceSets.main.map { SourceSetReference(it, project) })
             }
         }
 
@@ -122,7 +128,7 @@ fun applyGenericForge() {
         }
 
         runs {
-            create("yay") {
+            create("client") {
                 client()
                 this.ideName = "platform"().capitalized() + " " + "minecraft_version"()
             }
@@ -162,8 +168,11 @@ tasks.processResources {
 
 dependencies {
     annotationProcessor(manifold("preprocessor"))
+    annotationProcessor(manifold("exceptions"))
+    annotationProcessor(manifold("rt"))
 }
 
+// region Helpers
 operator fun String.invoke() = findProperty(this)?.toString() ?: error("No property \"$this\"")
 fun String.maybe(block: (String) -> Unit) = findProperty(this)?.toString()?.let(block)
 
@@ -196,3 +205,4 @@ val Project.mixin get() = the<net.neoforged.moddevgradle.legacyforge.dsl.MixinEx
 fun Project.mixin(block: net.neoforged.moddevgradle.legacyforge.dsl.MixinExtension.() -> Unit) {
     mixin.apply(block)
 }
+// endregion

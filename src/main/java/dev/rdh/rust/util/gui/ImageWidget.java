@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
-import org.joml.Matrix4f;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -17,20 +16,19 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.CommonComponents;
 
 import java.io.Closeable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ImageWidget extends AbstractWidget implements Closeable {
 	private final DynamicTexture texture;
 
+	public ImageWidget(int x, int y, int width, int height, Path path) {
+		this(x, y, width, height, NativeImage.read(Files.newInputStream(path)));
+	}
+
 	public ImageWidget(int x, int y, int width, int height, NativeImage image) {
 		super(x, y, width, height, CommonComponents.EMPTY);
 		this.texture = new DynamicTexture(image);
-	}
-
-	public ImageWidget(int x, int y, int width, NativeImage image) {
-		this(x, y, width, 0, image);
-		double ratio = (double) getWidth() / getImageWidth();
-		this.height = (int) (ratio * getImageHeight());
-		this.setY(this.getY() + this.height / 2);
 	}
 
 	public int getImageWidth() {
@@ -39,6 +37,35 @@ public class ImageWidget extends AbstractWidget implements Closeable {
 
 	public int getImageHeight() {
 		return texture.getPixels().getHeight();
+	}
+
+	public void shrinkToAspectRatio() {
+	    int origX = getX();
+	    int origY = getY();
+	    int origWidth = getWidth();
+	    int origHeight = getHeight();
+
+	    double aspectRatio = (double) getImageWidth() / getImageHeight();
+	    int newWidth, newHeight;
+
+	    if (origWidth / (double) origHeight > aspectRatio) {
+	        // too wide, shrink width
+	        newWidth = (int) (origHeight * aspectRatio);
+	        newHeight = origHeight;
+	    } else {
+	        // too tall, shrink height
+	        newWidth = origWidth;
+	        newHeight = (int) (origWidth / aspectRatio);
+	    }
+
+	    int centerX = origX + origWidth / 2;
+	    int centerY = origY + origHeight / 2;
+
+	    // Set new position so the widget is centered
+	    setX(centerX - newWidth / 2);
+	    setY(centerY - newHeight / 2);
+	    setWidth(newWidth);
+	    setHeight(newHeight);
 	}
 
 	@Override

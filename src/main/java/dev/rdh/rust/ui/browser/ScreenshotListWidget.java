@@ -1,56 +1,75 @@
 package dev.rdh.rust.ui.browser;
 
-import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.ui.browser.ScreenshotListWidget.ScreenshotEntry;
 import dev.rdh.rust.ui.customization.ConfigListScreen;
+import dev.rdh.rust.util.gui.ImageWidget;
 import dev.rdh.rust.util.gui.SelectionList;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 
+import java.nio.file.Path;
+import java.util.List;
+
 public class ScreenshotListWidget extends SelectionList<ScreenshotEntry> {
-	private final ConfigListScreen parent;
 
 	public ScreenshotListWidget(
 			Minecraft mc,
-			ConfigListScreen parent,
 			int width,
 			int height,
 			int y,
-			int itemHeight
+			int itemHeight,
+			List<Path> screenshots
 	) {
 		super(mc, width, height, y, #if MC <= 20.1 y + height, #endif itemHeight);
-		this.parent = parent;
+
+		for (Path path : screenshots) {
+			this.addEntry(new ScreenshotEntry(path));
+		}
+
+		this.setRenderHeader(true, 12);
 
 		this.setSelected(this.getEntry(0));
 	}
 
-	public #if MC >= 21.0 static #endif class ScreenshotEntry extends SelectionList.Entry<ScreenshotEntry> {
-		public final ScreenshotConfig config;
+	@Override
+	public void renderHeader(GuiGraphics graphics, int x, int y) {
+		Font font = minecraft.font;
+		graphics.drawString(font, "Screenshots", x + 2, y + 2, 0xFFFFFF);
+	}
 
-		public ScreenshotEntry(ScreenshotConfig config) {
-			this.config = config;
+	public #if MC >= 21.0 static #endif class ScreenshotEntry extends SelectionList.Entry<ScreenshotEntry> {
+		public final Path path;
+		public final ImageWidget thumbnail;
+
+		public ScreenshotEntry(Path path) {
+			this.path = path;
+			try {
+				this.thumbnail = new ImageWidget(0, 0, 0, 0, path);
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to load screenshot thumbnail: " + path, e);
+			}
 		}
 
 		@Override
 		public Component getNarration() {
-			return Component.literal(config.getName());
+			return Component.literal(path.getFileName().toString());
 		}
 
 		@Override
 		public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float partialTick) {
+			thumbnail.setX(left + 2);
+			thumbnail.setY(top + 2);
+			thumbnail.setWidth(height - 4);
+			thumbnail.setHeight(height - 4);
+			thumbnail.shrinkToAspectRatio();
+			thumbnail.render(graphics, mouseX, mouseY, partialTick);
+
 			Font font = Minecraft.getInstance().font;
 
-			int color = config.enabled() ? 0xFFFFFF : 0x808080;
-
-			int y = top + 1;
-			int x = left + 2;
-			graphics.drawString(font, config.getName(), x, y, color);
-			y += font.lineHeight + 2;
-			graphics.drawString(font, config.description(), x, y, color);
+			graphics.drawString(font, path.getFileName().toString(), left + 2 + thumbnail.getWidth() + 2, top + 2, 0xFFFFFF);
 		}
 
 		#if MC < 21.0
