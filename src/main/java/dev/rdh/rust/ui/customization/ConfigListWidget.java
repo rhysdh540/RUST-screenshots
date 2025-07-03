@@ -3,15 +3,14 @@ package dev.rdh.rust.ui.customization;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotManager;
 import dev.rdh.rust.ui.customization.ConfigListWidget.ConfigListEntry;
-import dev.rdh.rust.util.gui.SelectionList;
+import dev.rdh.rust.util.gui.RustSelectionList;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 
-public class ConfigListWidget extends SelectionList<ConfigListEntry> {
+public class ConfigListWidget extends RustSelectionList<ConfigListEntry> {
 	private final ConfigListScreen parent;
 
 	public ConfigListWidget(
@@ -22,7 +21,7 @@ public class ConfigListWidget extends SelectionList<ConfigListEntry> {
 			int y,
 			int itemHeight
 	) {
-		super(mc, width, height, y, #if MC <= 20.1 y + height, #endif itemHeight);
+		super(mc, width, height, y, itemHeight);
 		this.parent = parent;
 
 		for (ScreenshotConfig config : ScreenshotManager.ALL_CONFIGS) {
@@ -46,7 +45,7 @@ public class ConfigListWidget extends SelectionList<ConfigListEntry> {
 		this.centerScrollOn(entry);
 	}
 
-	public #if MC >= 21.0 static #endif class ConfigListEntry extends SelectionList.Entry<ConfigListEntry> {
+	public static class ConfigListEntry extends RustSelectionList.Entry<ConfigListEntry> {
 		public final ScreenshotConfig config;
 
 		public ConfigListEntry(ScreenshotConfig config) {

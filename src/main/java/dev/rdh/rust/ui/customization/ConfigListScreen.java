@@ -6,22 +6,21 @@ import com.mojang.blaze3d.platform.Window;
 import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.ui.customization.ConfigListWidget.ConfigListEntry;
-import dev.rdh.rust.util.gui.ScreenWithParent;
+import dev.rdh.rust.util.gui.RustScreen;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
-public class ConfigListScreen extends ScreenWithParent {
+public class ConfigListScreen extends RustScreen {
 
 	private ConfigEditorWidget editor;
 	private ConfigListWidget list;
 
-	public ConfigListScreen(Screen parent) {
-		super(parent, Component.literal("Screenshot Configurations"));
+	public ConfigListScreen() {
+		super(Component.literal("Screenshot Configurations"));
 	}
 
 	@Override
@@ -67,14 +66,6 @@ public class ConfigListScreen extends ScreenWithParent {
 				this.height - 36 * 2
 		));
 	}
-
-	#if MC < 21.0
-	@Override
-	public void render(net.minecraft.client.gui.GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		this.renderDirtBackground(graphics);
-		super.render(graphics, mouseX, mouseY, delta);
-	}
-	#endif
 
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {

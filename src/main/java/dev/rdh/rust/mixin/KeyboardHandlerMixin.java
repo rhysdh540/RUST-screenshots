@@ -37,7 +37,7 @@ public class KeyboardHandlerMixin {
 	private void onKeyPress(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.options.keyScreenshot.matches(key, scanCode) && Screen.hasShiftDown() && !(mc.screen instanceof ConfigListScreen)) {
-			mc.setScreen(new ScreenshotBrowserScreen(mc.screen));
+			mc.setScreen(new ScreenshotBrowserScreen());
 			return;
 		}
 

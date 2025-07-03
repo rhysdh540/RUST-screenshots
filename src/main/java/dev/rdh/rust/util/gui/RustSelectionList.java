@@ -4,9 +4,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 
-public class SelectionList<E extends SelectionList.Entry<E>> extends ObjectSelectionList<E> {
-	public SelectionList(Minecraft minecraft, int i, int j, int k, int l) {
-		super(minecraft, i, j, k, l);
+import java.io.Closeable;
+
+public class RustSelectionList<E extends RustSelectionList.Entry<E>> extends ObjectSelectionList<E> implements Closeable {
+	public RustSelectionList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
+		super(minecraft, width, height, y, #if MC < 21.0 y + height, #endif itemHeight);
 	}
 
 	@Override
@@ -16,12 +18,22 @@ public class SelectionList<E extends SelectionList.Entry<E>> extends ObjectSelec
 
 	@Override
 	protected int #if MC < 21.5 getScrollbarPosition #else scrollBarX #endif() {
-		#if MC >= 21.0
-		return this.getRight() - SCROLLBAR_WIDTH;
-		#else
+		#if MC < 21.0
 		return this.x1 - 6;
+		#else
+		return this.getRight() - SCROLLBAR_WIDTH;
 		#endif
 	}
+
+	#if MC < 21.0
+	public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
+	}
+
+	public int getY() {
+		return this.y0;
+	}
+	#endif
 
 	#if MC >= 21.0
 	@Override
@@ -43,29 +55,41 @@ public class SelectionList<E extends SelectionList.Entry<E>> extends ObjectSelec
 
 		int index = children().indexOf(entry);
 		children().remove(entry);
-		E newSelection = children().get(Math.min(index, children().size() - 1));
+		E newSelection;
+
+		if (children().isEmpty()) {
+			newSelection = null;
+		} else {
+			newSelection = children().get(Math.min(index, children().size() - 1));
+		}
 
 		setSelected(newSelection);
-		#if MC >= 21.5
-		this.refreshScrollAmount();
-		#elif MC >= 21.0
+		#if MC < 21.0
+		this.setScrollAmount(this.getScrollAmount());
+		#elif MC < 21.5
 		this.clampScrollAmount();
 		#else
-		this.setScrollAmount(this.list.getScrollAmount());
+		this.refreshScrollAmount();
 		#endif
 
 		return entry;
 	}
 
-	public static abstract class Entry<E extends SelectionList.Entry<E>> extends ObjectSelectionList.Entry<E> {
+	@Override
+	public void close() {
+		for (var child : this.children()) {
+			if (child instanceof Closeable c) {
+				c.close();
+			}
+		}
+		this.children().clear();
+	}
+
+	public static abstract class Entry<E extends RustSelectionList.Entry<E>> extends ObjectSelectionList.Entry<E> {
 		#if MC < 21.0
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			if (button == 0) {
-				ConfigListWidget.this.setSelected(this);
-				return true;
-			}
-			return false;
+			return true;
 		}
 		#endif
 	}

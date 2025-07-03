@@ -7,11 +7,13 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
+import java.io.Closeable;
+
 /**
  * Contains a widget (right aligned) and a label (left aligned) inside a space.
  * @param <W> the type of widget contained
  */
-public class StretchingLabeledWidget<W extends AbstractWidget> extends AbstractContainerWidget {
+public class StretchingLabeledWidget<W extends AbstractWidget> extends RustContainerWidget implements Closeable {
 	public final W widget;
 	public final StringWidget label;
 
@@ -84,6 +86,13 @@ public class StretchingLabeledWidget<W extends AbstractWidget> extends AbstractC
 				throw new IllegalStateException("Label, font, and widget must be set before building.");
 			}
 			return new StretchingLabeledWidget<>(x, y, width, height, label, font, widget);
+		}
+	}
+
+	@Override
+	public void close() {
+		if (widget instanceof Closeable) {
+			((Closeable) widget).close();
 		}
 	}
 }

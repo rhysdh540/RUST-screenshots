@@ -2,9 +2,15 @@ package dev.rdh.rust.ui.browser;
 
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
-import dev.rdh.rust.util.gui.ScreenWithParent;
+import dev.rdh.rust.ui.customization.ConfigListScreen;
+import dev.rdh.rust.util.gui.RustScreen;
 
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 import java.nio.file.Files;
@@ -12,12 +18,13 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 
-public class ScreenshotBrowserScreen extends ScreenWithParent {
+public class ScreenshotBrowserScreen extends RustScreen {
 
-	private ScreenshotListWidget list;
+	ScreenshotListWidget list;
+	private ScreenshotDetailsWidget details;
 
-	public ScreenshotBrowserScreen(Screen parent) {
-		super(parent, Component.literal("Screenshots"));
+	public ScreenshotBrowserScreen() {
+		super(Component.literal("Screenshots"));
 	}
 
 	@Override
@@ -37,11 +44,53 @@ public class ScreenshotBrowserScreen extends ScreenWithParent {
 
 		this.list = this.addRenderableWidget(new ScreenshotListWidget(
 				this.minecraft,
+				this,
 				200,
-				this.height - 36 * 2,
-				30,
+				this.height - 32 * 2,
+				20,
 				36,
 				allScreenshots
 		));
+
+		this.addRenderableOnly(new StringWidget(
+				0, 7,
+				this.width / 2, 10,
+				this.title, this.font
+		).alignCenter());
+
+		int padding = 2;
+
+		Button openFolder = this.addRenderableWidget(
+				Button.builder(CommonComponents.EMPTY, b -> Util.getPlatform().openFile(screenshotsDir.toFile()))
+						.size(20, 20)
+						.pos(200 - 20, height - 32)
+						.build()
+		);
+
+		Button config = this.addRenderableWidget(
+				Button.builder(CommonComponents.EMPTY, b -> Minecraft.getInstance().setScreen(new ConfigListScreen()))
+						.size(20, 20)
+						.pos(openFolder.getX() - padding - 20, height - 32)
+						.build()
+		);
+
+		this.addRenderableWidget(
+				Button.builder(CommonComponents.GUI_DONE, b -> this.onClose())
+						.size(config.getX() - 2 * padding, 20)
+						.pos(padding, height - 32)
+						.build()
+		);
+
+		this.details = this.addRenderableWidget(new ScreenshotDetailsWidget(
+				this.list,
+				this.width / 2, 0,
+				this.width / 2, this.height
+		));
+	}
+
+	public void updateSelected(Path path) {
+		if (this.details != null) {
+			this.details.update(path);
+		}
 	}
 }

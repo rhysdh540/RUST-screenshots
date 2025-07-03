@@ -3,10 +3,15 @@ package dev.rdh.rust.util.gui;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceImmutableList;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.CommonComponents;
 
+import java.io.Closeable;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -19,22 +24,23 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 #endif
 
-public abstract class AbstractContainerWidget
+public abstract class RustContainerWidget
 	#if MC <= 20.1
 		extends AbstractWidget implements ContainerEventHandler
 	#else
 	extends net.minecraft.client.gui.components.AbstractContainerWidget
 	#endif
+	implements Closeable
 {
 
-	private final List<AbstractWidget> children;
+	protected final List<AbstractWidget> children;
 
-	public AbstractContainerWidget(int x, int y, int width, int height, Component message) {
+	public RustContainerWidget(int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
 		this.children = new ReferenceArrayList<>();
 	}
 
-	public AbstractContainerWidget(int x, int y, int width, int height) {
+	public RustContainerWidget(int x, int y, int width, int height) {
 		this(x, y, width, height, CommonComponents.EMPTY);
 	}
 
@@ -49,18 +55,38 @@ public abstract class AbstractContainerWidget
 	}
 
 	protected final void addChildrenFromFields() {
-		try {
-			for (Field field : getClass().getDeclaredFields()) {
-				if (!Modifier.isStatic(field.getModifiers()) && AbstractWidget.class.isAssignableFrom(field.getType())) {
-					AbstractWidget widget = (AbstractWidget) field.get(this);
-					if (widget != null) {
-						addChild(widget);
-					}
+		MethodHandles.Lookup L = MethodHandles.privateLookupIn(getClass(), MethodHandles.lookup());
+		for (Field field : getClass().getDeclaredFields()) {
+			if (!Modifier.isStatic(field.getModifiers()) && AbstractWidget.class.isAssignableFrom(field.getType())) {
+				MethodHandle handle = L.unreflectGetter(field);
+				AbstractWidget widget = (AbstractWidget) handle.invoke(this);
+				if (widget != null) {
+					addChild(widget);
 				}
 			}
+		}
+	}
 
-		} catch (Throwable t) {
-			throw new RuntimeException("Failed to access widget fields", t);
+	@Override
+	protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		for (AbstractWidget child : children()) {
+			child.render(graphics, mouseX, mouseY, partialTick);
+		}
+	}
+
+	@Override
+	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+		for (AbstractWidget child : children()) {
+			child.updateNarration(narrationElementOutput);
+		}
+	}
+
+	@Override
+	public void close() {
+		for (AbstractWidget child : children()) {
+			if (child instanceof Closeable closeable) {
+				closeable.close();
+			}
 		}
 	}
 
@@ -79,14 +105,14 @@ public abstract class AbstractContainerWidget
 		this.isDragging = isDragging;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	@Override
 	public GuiEventListener getFocused() {
 		return this.focused;
 	}
 
 	@Override
-	public void setFocused(@Nullable GuiEventListener focused) {
+	public void setFocused(@javax.annotation.Nullable GuiEventListener focused) {
 		if (this.focused != null) {
 			this.focused.setFocused(false);
 		}
@@ -98,7 +124,7 @@ public abstract class AbstractContainerWidget
 		this.focused = focused;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	@Override
 	public ComponentPath nextFocusPath(FocusNavigationEvent event) {
 		return ContainerEventHandler.super.nextFocusPath(event);

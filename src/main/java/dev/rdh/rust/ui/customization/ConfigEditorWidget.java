@@ -7,25 +7,22 @@ import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotManager;
 import dev.rdh.rust.customization.VanillaScreenshotConfig;
-import dev.rdh.rust.util.gui.AbstractContainerWidget;
+import dev.rdh.rust.util.gui.RustContainerWidget;
 import dev.rdh.rust.util.gui.StretchingLabeledWidget;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 import java.util.function.Predicate;
 
-public class ConfigEditorWidget extends AbstractContainerWidget {
+public class ConfigEditorWidget extends RustContainerWidget {
 
 	private ScreenshotConfig config;
 
@@ -184,20 +181,6 @@ public class ConfigEditorWidget extends AbstractContainerWidget {
 		}
 
 		keybindButton.widget.setMessage(c);
-	}
-
-	@Override
-	protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		for (AbstractWidget child : children()) {
-			child.render(graphics, mouseX, mouseY, partialTick);
-		}
-	}
-
-	@Override
-	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-		for (AbstractWidget child : children()) {
-			child.updateNarration(narrationElementOutput);
-		}
 	}
 
 	public boolean onMouseClick(int button) {

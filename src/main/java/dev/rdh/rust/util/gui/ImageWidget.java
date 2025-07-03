@@ -1,26 +1,26 @@
 package dev.rdh.rust.util.gui;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 
+import dev.rdh.rust.RUST;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.Closeable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ImageWidget extends AbstractWidget implements Closeable {
-	private final DynamicTexture texture;
+	private final ResourceLocation resource;
+
+	private final int imageWidth;
+	private final int imageHeight;
 
 	public ImageWidget(int x, int y, int width, int height, Path path) {
 		this(x, y, width, height, NativeImage.read(Files.newInputStream(path)));
@@ -28,24 +28,39 @@ public class ImageWidget extends AbstractWidget implements Closeable {
 
 	public ImageWidget(int x, int y, int width, int height, NativeImage image) {
 		super(x, y, width, height, CommonComponents.EMPTY);
-		this.texture = new DynamicTexture(image);
+		DynamicTexture texture = new DynamicTexture(
+				#if MC >= 21.5
+				() -> String.valueOf(this.hashCode()),
+				#endif
+				image
+		);
+
+		this.resource = RUST.resource("textures/screenshot_generated/image_" + this.hashCode());
+
+		Minecraft.getInstance().getTextureManager().register(this.resource, texture);
+
+		this.imageWidth = image.getWidth();
+		this.imageHeight = image.getHeight();
 	}
 
 	public int getImageWidth() {
-		return texture.getPixels().getWidth();
+		return imageWidth;
 	}
 
 	public int getImageHeight() {
-		return texture.getPixels().getHeight();
+		return imageHeight;
 	}
 
-	public void shrinkToAspectRatio() {
+	public void shrinkToAspectRatio(boolean center) {
 	    int origX = getX();
 	    int origY = getY();
 	    int origWidth = getWidth();
 	    int origHeight = getHeight();
 
 	    double aspectRatio = (double) getImageWidth() / getImageHeight();
+		if (aspectRatio == 1.0) {
+			return;
+		}
 	    int newWidth, newHeight;
 
 	    if (origWidth / (double) origHeight > aspectRatio) {
@@ -62,33 +77,41 @@ public class ImageWidget extends AbstractWidget implements Closeable {
 	    int centerY = origY + origHeight / 2;
 
 	    // Set new position so the widget is centered
-	    setX(centerX - newWidth / 2);
-	    setY(centerY - newHeight / 2);
+	    if (center) {
+			setX(centerX - newWidth / 2);
+			setY(centerY - newHeight / 2);
+		}
 	    setWidth(newWidth);
 	    setHeight(newHeight);
 	}
 
 	@Override
 	protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderColor(1, 1, 1, 1);
-		RenderSystem.setShaderTexture(0, texture.getId());
-		RenderSystem.enableBlend();
-
-		BufferBuilder bb = Tesselator.getInstance().begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
 		int x = this.getX();
 		int y = this.getY();
 		int w = this.getWidth();
 		int h = this.getHeight();
 
-		bb.addVertex(x, y + h, 0).setUv(0, 1);
-		bb.addVertex(x + w, y + h, 0).setUv(1, 1);
-		bb.addVertex(x + w, y, 0).setUv(1, 0);
-		bb.addVertex(x, y, 0).setUv(0, 0);
-
-		BufferUploader.drawWithShader(bb.buildOrThrow());
-		RenderSystem.disableBlend();
+		#if MC >= 21.5
+		graphics.blit(
+				net.minecraft.client.renderer.RenderType::guiTextured,
+				this.resource,
+				x, y,
+				0, 0,
+				w, h,
+				w, h,
+				w, h
+		);
+		#else
+		graphics.blit(
+				this.resource,
+				x, y,
+				0, 0,
+				w, h,
+				w, h
+		);
+		#endif
 	}
 
 	@Override
@@ -97,6 +120,6 @@ public class ImageWidget extends AbstractWidget implements Closeable {
 
 	@Override
 	public void close() {
-		texture.close();
+		Minecraft.getInstance().getTextureManager().release(this.resource);
 	}
 }
