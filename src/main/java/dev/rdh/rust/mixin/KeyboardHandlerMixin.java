@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import dev.rdh.rust.customization.ScreenshotManager;
 import dev.rdh.rust.customization.ScreenshotConfig;
-import dev.rdh.rust.ui.browser.ScreenshotBrowserScreen;
+import dev.rdh.rust.ui.browser.list.ScreenshotGridScreen;
 import dev.rdh.rust.ui.customization.ConfigListScreen;
 
 import net.minecraft.client.KeyboardHandler;
@@ -37,7 +37,7 @@ public class KeyboardHandlerMixin {
 	private void onKeyPress(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.options.keyScreenshot.matches(key, scanCode) && Screen.hasShiftDown() && !(mc.screen instanceof ConfigListScreen)) {
-			mc.setScreen(new ScreenshotBrowserScreen());
+			mc.setScreen(new ScreenshotGridScreen());
 			return;
 		}
 

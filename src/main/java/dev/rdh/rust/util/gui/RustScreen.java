@@ -1,6 +1,7 @@
 package dev.rdh.rust.util.gui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -25,6 +26,10 @@ public abstract class RustScreen extends Screen {
 		super.render(graphics, mouseX, mouseY, delta);
 	}
 	#endif
+
+	protected final Button.Builder doneButton() {
+		return Button.builder(Component.translatable("gui.done"), b -> this.onClose());
+	}
 
 	@Override
 	public void onClose() {

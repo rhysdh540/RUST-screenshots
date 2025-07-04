@@ -1,4 +1,4 @@
-package dev.rdh.rust.ui.browser;
+package dev.rdh.rust.ui.browser.list;
 
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 

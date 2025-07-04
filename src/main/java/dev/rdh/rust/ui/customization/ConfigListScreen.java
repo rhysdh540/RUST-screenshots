@@ -41,7 +41,7 @@ public class ConfigListScreen extends RustScreen {
 		));
 
 		this.addRenderableWidget(
-				Button.builder(CommonComponents.GUI_DONE, b -> this.onClose())
+				doneButton()
 						.size(200, 20)
 						.pos(width / 2 - 100, height - 32)
 						.build()

@@ -1,9 +1,9 @@
-package dev.rdh.rust.ui.browser;
+package dev.rdh.rust.ui.browser.list;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
 import dev.rdh.rust.RUST;
-import dev.rdh.rust.ui.browser.ScreenshotListWidget.ScreenshotEntry;
+import dev.rdh.rust.ui.browser.list.ScreenshotListWidget.ScreenshotEntry;
 import dev.rdh.rust.util.gui.ImageWidget;
 import dev.rdh.rust.util.gui.RustSelectionList;
 
@@ -19,11 +19,11 @@ import java.util.List;
 
 public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 
-	private final ScreenshotBrowserScreen parent;
+	private final ScreenshotGridScreen parent;
 
 	public ScreenshotListWidget(
 			Minecraft mc,
-			ScreenshotBrowserScreen parent,
+			ScreenshotGridScreen parent,
 			int width,
 			int height,
 			int y,
