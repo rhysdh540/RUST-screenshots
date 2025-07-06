@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 
 import dev.rdh.rust.RUST;
 import dev.rdh.rust.ui.browser.list.ScreenshotListWidget.ScreenshotEntry;
+import dev.rdh.rust.util.ImageCache;
 import dev.rdh.rust.util.gui.ImageWidget;
 import dev.rdh.rust.util.gui.RustSelectionList;
 
@@ -15,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import java.io.Closeable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Set;
 
 public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 
@@ -28,20 +29,25 @@ public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 			int height,
 			int y,
 			int itemHeight,
-			List<Path> screenshots
+			Set<Path> screenshots
 	) {
 		super(mc, width, height, y, itemHeight);
 		this.parent = parent;
 
 		for (Path path : screenshots) {
-			try {
-				this.addEntry(new ScreenshotEntry(path, NativeImage.read(Files.newInputStream(path))));
-			} catch (Exception e) {
-				RUST.LOGGER.error("Failed to load screenshot: " + path, e);
-			}
+			if (!Files.exists(path)) continue;
+			ScreenshotEntry entry = new ScreenshotEntry(path);
+			this.addEntry(entry);
+
+			ImageCache.onRemoved(path, () -> {
+				if (this.children().contains(entry)) {
+					this.removeEntry(entry);
+					entry.close();
+				}
+			});
 		}
 
-		if (!screenshots.isEmpty()) {
+		if (!this.children().isEmpty()) {
 			this.setSelected(this.getEntry(0));
 		}
 	}
@@ -73,9 +79,9 @@ public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 		public final Path path;
 		public final ImageWidget thumbnail;
 
-		public ScreenshotEntry(Path path, NativeImage thumbnail) {
+		public ScreenshotEntry(Path path) {
 			this.path = path;
-			this.thumbnail = new ImageWidget(0, 0, 0, 0, thumbnail);
+			this.thumbnail = new ImageWidget(0, 0, 0, 0, path);
 		}
 
 		@Override

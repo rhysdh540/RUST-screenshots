@@ -14,6 +14,7 @@ public class ScreenshotGridScreen extends AbstractScreenshotBrowserScreen {
 
 	@Override
 	public void init() {
+		super.init();
 		this.list = this.addRenderableWidget(new ScreenshotListWidget(
 				this.minecraft,
 				this,

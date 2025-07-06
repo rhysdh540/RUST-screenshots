@@ -2,7 +2,7 @@ package dev.rdh.rust.util.gui;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
-import dev.rdh.rust.RUST;
+import dev.rdh.rust.util.ImageCache;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,7 +13,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.Closeable;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ImageWidget extends AbstractWidget implements Closeable {
@@ -23,21 +22,11 @@ public class ImageWidget extends AbstractWidget implements Closeable {
 	private final int imageHeight;
 
 	public ImageWidget(int x, int y, int width, int height, Path path) {
-		this(x, y, width, height, NativeImage.read(Files.newInputStream(path)));
-	}
-
-	public ImageWidget(int x, int y, int width, int height, NativeImage image) {
 		super(x, y, width, height, CommonComponents.EMPTY);
-		DynamicTexture texture = new DynamicTexture(
-				#if MC >= 21.5
-				() -> String.valueOf(this.hashCode()),
-				#endif
-				image
-		);
 
-		this.resource = RUST.resource("textures/screenshot_generated/image_" + this.hashCode());
+		this.resource = ImageCache.get(path);
 
-		Minecraft.getInstance().getTextureManager().register(this.resource, texture);
+		NativeImage image = ImageCache.getPixels(path);
 
 		this.imageWidth = image.getWidth();
 		this.imageHeight = image.getHeight();

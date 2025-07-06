@@ -1,8 +1,9 @@
 package dev.rdh.rust.ui.browser;
 
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 
 import dev.rdh.rust.ui.customization.ConfigListScreen;
+import dev.rdh.rust.util.Screenshots;
 import dev.rdh.rust.util.gui.RustScreen;
 
 import net.minecraft.Util;
@@ -14,32 +15,31 @@ import net.minecraft.network.chat.Component;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractScreenshotBrowserScreen extends RustScreen {
-	protected final List<Path> allScreenshots;
-	protected final Path screenshotsDir = Minecraft.getInstance().gameDirectory.toPath().resolve("screenshots");
+	protected final Set<Path> allScreenshots;
 
 	protected AbstractScreenshotBrowserScreen() {
 		super(Component.literal("Screenshots"));
+		allScreenshots = new ObjectLinkedOpenHashSet<>();
+	}
 
-		allScreenshots = new ReferenceArrayList<>();
-
-		if(!Files.exists(screenshotsDir)) {
-			Files.createDirectories(screenshotsDir);
+	@Override
+	public void init() {
+		if(!Files.exists(Screenshots.DIRECTORY)) {
+			Files.createDirectories(Screenshots.DIRECTORY);
 		}
 
-		Files.walk(screenshotsDir)
+		Files.walk(Screenshots.DIRECTORY)
 				.sorted(Comparator.comparingLong(path -> -path.toFile().lastModified()))
 				.filter(Files::isRegularFile)
 				.filter(path -> path.toString().endsWith(".png"))
 				.forEach(allScreenshots::add);
-
-
 	}
 
 	protected final Button.Builder openFolderButton() {
-		return Button.builder(CommonComponents.EMPTY, b -> Util.getPlatform().openFile(screenshotsDir.toFile()));
+		return Button.builder(CommonComponents.EMPTY, b -> Util.getPlatform().openFile(Screenshots.DIRECTORY.toFile()));
 	}
 
 	protected final Button.Builder openConfigButton() {

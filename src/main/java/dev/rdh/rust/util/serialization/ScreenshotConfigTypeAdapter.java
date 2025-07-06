@@ -7,10 +7,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
-import dev.rdh.rust.customization.ScreenshotManager;
 import dev.rdh.rust.customization.VanillaScreenshotConfig;
-
-import net.minecraft.client.KeyMapping;
 
 import java.io.IOException;
 

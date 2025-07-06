@@ -11,7 +11,6 @@ import dev.rdh.rust.util.gui.RustScreen;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 public class ConfigListScreen extends RustScreen {

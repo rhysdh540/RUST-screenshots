@@ -28,7 +28,7 @@ stonecutter {
 
 manifold {
     version = "manifold_version"()
-    bootstrap = false
+    pluginArgs.add("--no-bootstrap")
 
     preprocessor {
         config {
@@ -42,6 +42,12 @@ manifold {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
+}
+
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isReproducibleFileOrder = true
+    isPreserveFileTimestamps = false
+    includeEmptyDirs = false
 }
 
 fun applyLoom() {

@@ -1,7 +1,5 @@
 package dev.rdh.rust.ui.browser.list;
 
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-
 import dev.rdh.rust.util.gui.RustContainerWidget;
 import dev.rdh.rust.util.gui.ImageWidget;
 
@@ -13,10 +11,8 @@ import net.minecraft.network.chat.Component;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 public class ScreenshotDetailsWidget extends RustContainerWidget {
-	private final Map<Path, ImageWidget> cachedImages = new Reference2ReferenceOpenHashMap<>();
 
 	private Path screenshotPath;
 	private ImageWidget image;
@@ -81,31 +77,13 @@ public class ScreenshotDetailsWidget extends RustContainerWidget {
 		this.editButton.visible = true;
 		this.deleteButton.visible = true;
 
-		ImageWidget cached = this.cachedImages.get(path);
-		if (cached != null) {
-			this.image = cached;
-		} else {
-			this.image = new ImageWidget(getX(), getY() + 5, 100, 100, path);
-			this.image.shrinkToAspectRatio(false);
-			this.image.setX(getX() + (getWidth() - this.image.getWidth()) / 2);
-			this.cachedImages.put(path, this.image);
-		}
+		this.image = new ImageWidget(getX(), getY() + 5, 200, 200, path);
+		this.image.shrinkToAspectRatio(false);
+		this.image.setX(getX() + (getWidth() - this.image.getWidth()) / 2);
 
 		this.addChild(this.image);
 
 		this.name.setMessage(Component.literal(path.getFileName().toString()));
 		this.name.setY(this.getY() + image.getHeight() + 5);
-	}
-
-	@Override
-	public void close() {
-		super.close();
-		for (ImageWidget img : this.cachedImages.values()) {
-			if (img != this.image) {
-				img.close();
-			}
-		}
-
-		this.cachedImages.clear();
 	}
 }

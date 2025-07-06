@@ -4,7 +4,7 @@ import com.google.common.reflect.Reflection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dev.rdh.rust.customization.ScreenshotManager;
+import dev.rdh.rust.customization.ConfigManager;
 
 import net.minecraft.resources.ResourceLocation;
 
@@ -44,7 +44,7 @@ public class RUST #if fabric implements net.fabricmc.api.ClientModInitializer #e
 	static {
 		try {
 			Files.createDirectories(CONFIG_PATH);
-			Reflection.initialize(ScreenshotManager.class);
+			Reflection.initialize(ConfigManager.class);
 		} catch (IOException e) {
 			LOGGER.error("Could not create config directory", e);
 		}

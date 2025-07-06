@@ -5,10 +5,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import dev.rdh.rust.customization.ScreenshotManager;
+import dev.rdh.rust.customization.ConfigManager;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.ui.browser.list.ScreenshotGridScreen;
 import dev.rdh.rust.ui.customization.ConfigListScreen;
+import dev.rdh.rust.util.Screenshots;
 
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
@@ -41,9 +42,9 @@ public class KeyboardHandlerMixin {
 			return;
 		}
 
-		for(ScreenshotConfig config : ScreenshotManager.ALL_CONFIGS) {
+		for(ScreenshotConfig config : ConfigManager.ALL_CONFIGS) {
 			if(config.key().matches(key, scanCode) && config.enabled()) {
-				ScreenshotManager.performScreenshot(config);
+				Screenshots.grab(config);
 				ci.cancel();
 				return;
 			}

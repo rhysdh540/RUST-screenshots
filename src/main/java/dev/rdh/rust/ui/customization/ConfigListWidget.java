@@ -1,7 +1,7 @@
 package dev.rdh.rust.ui.customization;
 
 import dev.rdh.rust.customization.ScreenshotConfig;
-import dev.rdh.rust.customization.ScreenshotManager;
+import dev.rdh.rust.customization.ConfigManager;
 import dev.rdh.rust.ui.customization.ConfigListWidget.ConfigListEntry;
 import dev.rdh.rust.util.gui.RustSelectionList;
 
@@ -24,7 +24,7 @@ public class ConfigListWidget extends RustSelectionList<ConfigListEntry> {
 		super(mc, width, height, y, itemHeight);
 		this.parent = parent;
 
-		for (ScreenshotConfig config : ScreenshotManager.ALL_CONFIGS) {
+		for (ScreenshotConfig config : ConfigManager.ALL_CONFIGS) {
 			this.addEntry(new ConfigListEntry(config));
 		}
 
@@ -38,7 +38,7 @@ public class ConfigListWidget extends RustSelectionList<ConfigListEntry> {
 	}
 
 	public void add(ScreenshotConfig config) {
-		ScreenshotManager.ALL_CONFIGS.add(config);
+		ConfigManager.ALL_CONFIGS.add(config);
 		ConfigListEntry entry = new ConfigListEntry(config);
 		this.addEntry(entry);
 		this.setSelected(entry);

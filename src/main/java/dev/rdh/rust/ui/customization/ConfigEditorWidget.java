@@ -5,7 +5,7 @@ import com.mojang.blaze3d.platform.Window;
 
 import dev.rdh.rust.customization.CustomScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
-import dev.rdh.rust.customization.ScreenshotManager;
+import dev.rdh.rust.customization.ConfigManager;
 import dev.rdh.rust.customization.VanillaScreenshotConfig;
 import dev.rdh.rust.util.gui.RustContainerWidget;
 import dev.rdh.rust.util.gui.StretchingLabeledWidget;
@@ -90,7 +90,7 @@ public class ConfigEditorWidget extends RustContainerWidget {
 		heightEditor.widget.setFilter(intFilter);
 
 		deleteButton = Button.builder(Component.translatable("selectServer.delete"), b -> {
-					ScreenshotManager.ALL_CONFIGS.remove(screen.removeSelected());
+					ConfigManager.ALL_CONFIGS.remove(screen.removeSelected());
 		})
 				.size(width, 20)
 				.pos(x, y + height - 20)

@@ -1,7 +1,8 @@
 package dev.rdh.rust.util.gui;
 
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceImmutableList;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -26,18 +27,18 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 
 public abstract class RustContainerWidget
 	#if MC <= 20.1
-		extends AbstractWidget implements ContainerEventHandler
+		extends AbstractWidget implements ContainerEventHandler,
 	#else
-	extends net.minecraft.client.gui.components.AbstractContainerWidget
+	extends net.minecraft.client.gui.components.AbstractContainerWidget implements
 	#endif
-	implements Closeable
+	Closeable
 {
 
 	protected final List<AbstractWidget> children;
 
 	public RustContainerWidget(int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
-		this.children = new ReferenceArrayList<>();
+		this.children = new ObjectArrayList<>();
 	}
 
 	public RustContainerWidget(int x, int y, int width, int height) {
@@ -46,7 +47,7 @@ public abstract class RustContainerWidget
 
 	@Override
 	public List<AbstractWidget> children() {
-		return new ReferenceImmutableList<>(children);
+		return new ObjectImmutableList<>(children);
 	}
 
 	protected final <T extends AbstractWidget> T addChild(T child) {
