@@ -6,7 +6,7 @@ import xyz.wagyourtail.commonskt.utils.capitalized
 plugins {
     id("fabric-loom") version("1.10.+") apply(false)
     id("net.neoforged.moddev") version("2.0.95") apply(false)
-    id("xyz.wagyourtail.manifold") version("1.1.0")
+    id("xyz.wagyourtail.manifold") version("1.1.0-SNAPSHOT")
 }
 
 run {
