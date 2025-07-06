@@ -28,7 +28,7 @@ stonecutter {
         fun add(mcVersion: String, vararg loaders: String) =
             loaders.forEach { vers("$mcVersion-$it", mcVersion) }
 
-        add("1.20.1", "fabric", "forge")
+        add("1.20.1", "forge")
         add("1.21.1", "fabric", "neoforge")
         add("1.21.5", "fabric", "neoforge")
 

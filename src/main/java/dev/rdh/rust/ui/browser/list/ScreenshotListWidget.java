@@ -1,8 +1,5 @@
 package dev.rdh.rust.ui.browser.list;
 
-import com.mojang.blaze3d.platform.NativeImage;
-
-import dev.rdh.rust.RUST;
 import dev.rdh.rust.ui.browser.list.ScreenshotListWidget.ScreenshotEntry;
 import dev.rdh.rust.util.ImageCache;
 import dev.rdh.rust.util.gui.ImageWidget;
@@ -34,22 +31,25 @@ public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 		super(mc, width, height, y, itemHeight);
 		this.parent = parent;
 
-		for (Path path : screenshots) {
-			if (!Files.exists(path)) continue;
-			ScreenshotEntry entry = new ScreenshotEntry(path);
-			this.addEntry(entry);
-
-			ImageCache.onRemoved(path, () -> {
-				if (this.children().contains(entry)) {
-					this.removeEntry(entry);
-					entry.close();
-				}
-			});
-		}
+		screenshots.forEach(this::addEntry);
+		ImageCache.onAdded(this::addEntry);
 
 		if (!this.children().isEmpty()) {
 			this.setSelected(this.getEntry(0));
 		}
+	}
+
+	private void addEntry(Path path) {
+		if (!Files.exists(path)) return;
+		ScreenshotEntry entry = new ScreenshotEntry(path);
+		this.addEntry(entry);
+
+		ImageCache.onRemoved(path, () -> {
+			if (this.children().contains(entry)) {
+				this.removeEntry(entry);
+				entry.close();
+			}
+		});
 	}
 
 	@Override
@@ -73,6 +73,12 @@ public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 		} else {
 			this.parent.updateSelected(entry.path);
 		}
+	}
+
+	@Override
+	public void close() {
+		super.close();
+		ImageCache.removeAddedCallback(this::addEntry);
 	}
 
 	public static class ScreenshotEntry extends RustSelectionList.Entry<ScreenshotEntry> implements Closeable {

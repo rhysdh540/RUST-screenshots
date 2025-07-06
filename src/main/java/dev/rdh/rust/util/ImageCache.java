@@ -20,7 +20,9 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
@@ -57,7 +59,29 @@ public final class ImageCache {
 			throw new IllegalArgumentException("File does not exist: " + path);
 		}
 
+		if (callback == null) {
+			throw new IllegalArgumentException("Callback cannot be null");
+		}
+
 		removalCallbacks.computeIfAbsent(path, k -> new ObjectArrayList<>()).add(callback);
+	}
+
+	private static final List<Consumer<Path>> addCallbacks = new ObjectArrayList<>();
+
+	public static void onAdded(Consumer<Path> callback) {
+		if (callback == null) {
+			throw new IllegalArgumentException("Callback cannot be null");
+		}
+
+		addCallbacks.add(callback);
+	}
+
+	public static void removeAddedCallback(Consumer<Path> callback) {
+		if (callback == null) {
+			throw new IllegalArgumentException("Callback cannot be null");
+		}
+
+		addCallbacks.remove(callback);
 	}
 
 	private static ResourceLocation createResource(Path path) {
@@ -104,8 +128,7 @@ public final class ImageCache {
 
 	private static void threadRun() {
 		try(WatchService service = FileSystems.getDefault().newWatchService()) {
-			// we don't really care about new entries because they should be called later
-			Screenshots.DIRECTORY.register(service, ENTRY_DELETE, ENTRY_MODIFY);
+			Screenshots.DIRECTORY.register(service, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
 			while (true) {
 				WatchKey key = service.take();
@@ -115,7 +138,24 @@ public final class ImageCache {
 					}
 
 					Path path = Screenshots.DIRECTORY.resolve((Path) event.context());
-					Minecraft.getInstance().schedule(() -> remove(path, event.kind()));
+					Runnable task;
+					if (event.kind() == ENTRY_CREATE && Files.isRegularFile(path) && path.toString().endsWith(".png")) {
+						task = () -> {
+							for(Consumer<Path> callback : addCallbacks) {
+								callback.accept(path);
+							}
+						};
+					} else if (event.kind() == ENTRY_DELETE || event.kind() == ENTRY_MODIFY) {
+						task = () -> remove(path, event.kind());
+					} else {
+						continue;
+					}
+
+					#if MC >= 21.5
+					Minecraft.getInstance().schedule(task);
+					#else
+					Minecraft.getInstance().tell(task);
+					#endif
 				}
 				key.reset();
 			}

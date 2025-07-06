@@ -92,7 +92,6 @@ public abstract class RustContainerWidget
 	}
 
 	#if MC <= 20.1
-	@javax.annotation.Nullable
 	private GuiEventListener focused;
 	private boolean isDragging;
 
@@ -106,14 +105,13 @@ public abstract class RustContainerWidget
 		this.isDragging = isDragging;
 	}
 
-	@javax.annotation.Nullable
 	@Override
 	public GuiEventListener getFocused() {
 		return this.focused;
 	}
 
 	@Override
-	public void setFocused(@javax.annotation.Nullable GuiEventListener focused) {
+	public void setFocused(GuiEventListener focused) {
 		if (this.focused != null) {
 			this.focused.setFocused(false);
 		}
@@ -125,7 +123,6 @@ public abstract class RustContainerWidget
 		this.focused = focused;
 	}
 
-	@javax.annotation.Nullable
 	@Override
 	public ComponentPath nextFocusPath(FocusNavigationEvent event) {
 		return ContainerEventHandler.super.nextFocusPath(event);

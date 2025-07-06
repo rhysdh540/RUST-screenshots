@@ -77,7 +77,9 @@ public class ScreenshotDetailsWidget extends RustContainerWidget {
 		this.editButton.visible = true;
 		this.deleteButton.visible = true;
 
-		this.image = new ImageWidget(getX(), getY() + 5, 200, 200, path);
+		int imageSize = Math.min(200, deleteButton.getY() - Minecraft.getInstance().font.lineHeight - 15);
+
+		this.image = new ImageWidget(getX(), getY() + 5, imageSize, imageSize, path);
 		this.image.shrinkToAspectRatio(false);
 		this.image.setX(getX() + (getWidth() - this.image.getWidth()) / 2);
 
