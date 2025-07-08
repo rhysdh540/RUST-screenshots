@@ -7,7 +7,7 @@ import net.minecraft.client.gui.components.StringWidget;
 
 import java.nio.file.Path;
 
-public class ScreenshotGridScreen extends AbstractScreenshotBrowserScreen {
+public class ScreenshotListScreen extends AbstractScreenshotBrowserScreen {
 
 	ScreenshotListWidget list;
 	private ScreenshotDetailsWidget details;

@@ -2,7 +2,7 @@ package dev.rdh.rust.ui.browser.list;
 
 import dev.rdh.rust.ui.browser.list.ScreenshotListWidget.ScreenshotEntry;
 import dev.rdh.rust.util.ImageCache;
-import dev.rdh.rust.util.gui.ImageWidget;
+import dev.rdh.rust.util.gui.DynamicImageWidget;
 import dev.rdh.rust.util.gui.RustSelectionList;
 
 import net.minecraft.client.Minecraft;
@@ -17,11 +17,11 @@ import java.util.Set;
 
 public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 
-	private final ScreenshotGridScreen parent;
+	private final ScreenshotListScreen parent;
 
 	public ScreenshotListWidget(
 			Minecraft mc,
-			ScreenshotGridScreen parent,
+			ScreenshotListScreen parent,
 			int width,
 			int height,
 			int y,
@@ -83,11 +83,11 @@ public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 
 	public static class ScreenshotEntry extends RustSelectionList.Entry<ScreenshotEntry> implements Closeable {
 		public final Path path;
-		public final ImageWidget thumbnail;
+		public final DynamicImageWidget thumbnail;
 
 		public ScreenshotEntry(Path path) {
 			this.path = path;
-			this.thumbnail = new ImageWidget(0, 0, 0, 0, path);
+			this.thumbnail = new DynamicImageWidget(0, 0, 0, 0, path);
 		}
 
 		@Override

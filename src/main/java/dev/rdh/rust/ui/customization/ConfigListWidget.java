@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.CommonColors;
 
 public class ConfigListWidget extends RustSelectionList<ConfigListEntry> {
 	private final ConfigListScreen parent;
@@ -61,7 +62,7 @@ public class ConfigListWidget extends RustSelectionList<ConfigListEntry> {
 		public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float partialTick) {
 			Font font = Minecraft.getInstance().font;
 
-			int color = config.enabled() ? 0xFFFFFF : 0x808080;
+			int color = config.enabled() ? CommonColors.WHITE : CommonColors.GRAY;
 
 			int y = top + 1;
 			int x = left + 2;

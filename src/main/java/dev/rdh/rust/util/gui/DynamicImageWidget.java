@@ -14,13 +14,13 @@ import net.minecraft.resources.ResourceLocation;
 import java.io.Closeable;
 import java.nio.file.Path;
 
-public class ImageWidget extends AbstractWidget implements Closeable {
+public class DynamicImageWidget extends AbstractWidget implements Closeable {
 	private final ResourceLocation resource;
 
 	private final int imageWidth;
 	private final int imageHeight;
 
-	public ImageWidget(int x, int y, int width, int height, Path path) {
+	public DynamicImageWidget(int x, int y, int width, int height, Path path) {
 		super(x, y, width, height, CommonComponents.EMPTY);
 
 		this.resource = ImageCache.get(path);
@@ -75,7 +75,6 @@ public class ImageWidget extends AbstractWidget implements Closeable {
 
 	@Override
 	protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-
 		int x = this.getX();
 		int y = this.getY();
 		int w = this.getWidth();

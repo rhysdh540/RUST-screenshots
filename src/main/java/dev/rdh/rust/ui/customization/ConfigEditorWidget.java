@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -33,8 +34,8 @@ public class ConfigEditorWidget extends RustContainerWidget {
 	private final StretchingLabeledWidget<Button> keybindButton;
 	private boolean keybindSelected;
 
-	private final StretchingLabeledWidget<EditBox> widthEditor;
-	private final StretchingLabeledWidget<EditBox> heightEditor;
+	private final EditBox widthEditor;
+	private final EditBox heightEditor;
 
 	public ConfigEditorWidget(ConfigListScreen screen, int x, int y, int width, int height) {
 		super(x, y, width, height);
@@ -63,31 +64,43 @@ public class ConfigEditorWidget extends RustContainerWidget {
 
 		keybindButton = StretchingLabeledWidget.containing(button)
 				.label(Component.literal("Keybind:"), font)
-				.pos(x + 5, 55)
-				.size(width - 5, 20)
+				.pos(x, 55)
+				.size(width, 20)
 				.build();
 
 		Predicate<String> intFilter = s -> {
 			if (s.isEmpty()) return true;
-			if(!s.chars().allMatch(Character::isDigit)) return false;
+			if(!s.codePoints().allMatch(Character::isDigit)) return false;
 
 			int value = Integer.parseInt(s);
 			return value >= 1 && value <= 1 << 16;
 		};
 
-		widthEditor = StretchingLabeledWidget.containing(new EditBox(font, 0, 0, 75, 20, CommonComponents.EMPTY))
-				.label(Component.literal("Width"), font)
-				.pos(x + 5, keybindButton.getY() + keybindButton.getHeight() + 5)
-				.size(width - 5, 20)
-				.build();
-		widthEditor.widget.setFilter(intFilter);
+		int secondRowY = keybindButton.getY() + keybindButton.getHeight() + 5;
+		Component xText = Component.literal(" x ");
+		this.addChild(new StringWidget(x - 1, secondRowY + 5, width, font.lineHeight, xText, font));
 
-		heightEditor = StretchingLabeledWidget.containing(new EditBox(font, 0, 0, 75, 20, CommonComponents.EMPTY))
-				.label(Component.literal("Height"), font)
-				.pos(x + 5, widthEditor.getY() + widthEditor.getHeight() + 5)
-				.size(width - 5, 20)
-				.build();
-		heightEditor.widget.setFilter(intFilter);
+		int middleX = x + (width / 2);
+		int middleXBack = middleX - (font.width(xText) / 2);
+		int middleXFront = middleX + (font.width(xText) / 2);
+
+		widthEditor = new EditBox(font, x, secondRowY, middleXBack - this.getX(), 20, CommonComponents.EMPTY);
+		widthEditor.setFilter(intFilter);
+		widthEditor.setResponder(str -> {
+			if (!str.isEmpty()) {
+				CustomScreenshotConfig c = (CustomScreenshotConfig) config;
+				c.setWidth(Integer.parseInt(str));
+			}
+		});
+
+		heightEditor = new EditBox(font, middleXFront, secondRowY, x + width - middleXFront, 20, CommonComponents.EMPTY);
+		heightEditor.setFilter(intFilter);
+		heightEditor.setResponder(str -> {
+			if (!str.isEmpty()) {
+				CustomScreenshotConfig c = (CustomScreenshotConfig) config;
+				c.setHeight(Integer.parseInt(str));
+			}
+		});
 
 		deleteButton = Button.builder(Component.translatable("selectServer.delete"), b -> {
 					ConfigManager.ALL_CONFIGS.remove(screen.removeSelected());
@@ -129,34 +142,34 @@ public class ConfigEditorWidget extends RustContainerWidget {
 		Window w = Minecraft.getInstance().getWindow();
 
 		if (vanilla) {
-			widthEditor.widget.setResponder(null);
-			widthEditor.widget.setEditable(false);
-			widthEditor.widget.active = false;
+			widthEditor.setResponder(null);
+			widthEditor.setEditable(false);
+			widthEditor.active = false;
 		} else {
-			widthEditor.widget.setResponder(str -> {
+			widthEditor.setResponder(str -> {
 				if (!str.isEmpty()) {
 					c.setWidth(Integer.parseInt(str));
 				}
 			});
-			widthEditor.widget.setEditable(true);
-			widthEditor.widget.active = true;
+			widthEditor.setEditable(true);
+			widthEditor.active = true;
 		}
-		widthEditor.widget.setValue(String.valueOf(config.getWidth(w.getWidth())));
+		widthEditor.setValue(String.valueOf(config.getWidth(w.getWidth())));
 
 		if (vanilla) {
-			heightEditor.widget.setResponder(null);
-			heightEditor.widget.setEditable(false);
-			heightEditor.widget.active = false;
+			heightEditor.setResponder(null);
+			heightEditor.setEditable(false);
+			heightEditor.active = false;
 		} else {
-			heightEditor.widget.setResponder(str -> {
+			heightEditor.setResponder(str -> {
 				if (!str.isEmpty()) {
 					c.setHeight(Integer.parseInt(str));
 				}
 			});
-			heightEditor.widget.setEditable(true);
-			heightEditor.widget.active = true;
+			heightEditor.setEditable(true);
+			heightEditor.active = true;
 		}
-		heightEditor.widget.setValue(String.valueOf(config.getHeight(w.getHeight())));
+		heightEditor.setValue(String.valueOf(config.getHeight(w.getHeight())));
 
 		deleteButton.active = !vanilla;
 

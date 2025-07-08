@@ -1,7 +1,7 @@
 package dev.rdh.rust.ui.browser.list;
 
 import dev.rdh.rust.util.gui.RustContainerWidget;
-import dev.rdh.rust.util.gui.ImageWidget;
+import dev.rdh.rust.util.gui.DynamicImageWidget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -15,7 +15,7 @@ import java.nio.file.Path;
 public class ScreenshotDetailsWidget extends RustContainerWidget {
 
 	private Path screenshotPath;
-	private ImageWidget image;
+	private DynamicImageWidget image;
 	private final StringWidget name;
 
   	private final Button editButton;
@@ -79,7 +79,7 @@ public class ScreenshotDetailsWidget extends RustContainerWidget {
 
 		int imageSize = Math.min(200, deleteButton.getY() - Minecraft.getInstance().font.lineHeight - 15);
 
-		this.image = new ImageWidget(getX(), getY() + 5, imageSize, imageSize, path);
+		this.image = new DynamicImageWidget(getX(), getY() + 5, imageSize, imageSize, path);
 		this.image.shrinkToAspectRatio(false);
 		this.image.setX(getX() + (getWidth() - this.image.getWidth()) / 2);
 

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import dev.rdh.rust.customization.ConfigManager;
 import dev.rdh.rust.customization.ScreenshotConfig;
-import dev.rdh.rust.ui.browser.list.ScreenshotGridScreen;
+import dev.rdh.rust.ui.browser.list.ScreenshotListScreen;
 import dev.rdh.rust.ui.customization.ConfigListScreen;
 import dev.rdh.rust.util.Screenshots;
 
@@ -37,8 +37,8 @@ public class KeyboardHandlerMixin {
 	@Inject(method = "keyPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;matches(II)Z", ordinal = 1), cancellable = true)
 	private void onKeyPress(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.keyScreenshot.matches(key, scanCode) && Screen.hasShiftDown() && !(mc.screen instanceof ConfigListScreen)) {
-			mc.setScreen(new ScreenshotGridScreen());
+		if (mc.options.keyScreenshot.matches(key, scanCode) && Screen.hasShiftDown() && !(mc.screen instanceof ScreenshotListScreen) && !(mc.screen instanceof ConfigListScreen)) {
+			mc.setScreen(new ScreenshotListScreen());
 			return;
 		}
 

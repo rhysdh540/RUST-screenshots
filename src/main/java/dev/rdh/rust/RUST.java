@@ -57,10 +57,6 @@ public class RUST #if fabric implements net.fabricmc.api.ClientModInitializer #e
 	}
 
 	public static ResourceLocation resource(String path) {
-		#if MC >= 21.0
 		return ResourceLocation.fromNamespaceAndPath(ID, path);
-		#else
-		return new ResourceLocation(ID, path);
-		#endif
 	}
 }
