@@ -62,7 +62,7 @@ public class ConfigListWidget extends RustSelectionList<ConfigListEntry> {
 		public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float partialTick) {
 			Font font = Minecraft.getInstance().font;
 
-			int color = config.enabled() ? CommonColors.WHITE : CommonColors.GRAY;
+			int color = config.enabled ? CommonColors.WHITE : CommonColors.GRAY;
 
 			int y = top + 1;
 			int x = left + 2;

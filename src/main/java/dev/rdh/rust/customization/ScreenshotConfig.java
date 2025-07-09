@@ -8,7 +8,8 @@ import java.util.Objects;
 public abstract class ScreenshotConfig {
     protected String name;
     protected KeyMapping key;
-    protected boolean enabled = true;
+    public boolean enabled = true;
+	public boolean hideUI = false;
 
 	public static final String CATEGORY = "key.categories.rust_generated";
 
@@ -45,17 +46,12 @@ public abstract class ScreenshotConfig {
         return key;
     }
 
-    public boolean enabled() {
-        return enabled;
-    }
-
-    public void toggleEnabled() {
-        enabled = !enabled;
-    }
-
     @Override
     public int hashCode() {
-        return Objects.hash(name, key, enabled);
+        int hash = 7;
+		hash = 31 * hash + name.hashCode();
+		hash = 31 * hash + key.saveString().hashCode();
+		return hash;
     }
 
     @Override

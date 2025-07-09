@@ -2,7 +2,6 @@ package dev.rdh.rust.util;
 
 import com.mojang.blaze3d.platform.Window;
 
-import dev.rdh.rust.RUST;
 import dev.rdh.rust.customization.ScreenshotConfig;
 
 import net.minecraft.client.Minecraft;
@@ -22,14 +21,24 @@ public final class Screenshots {
 		int newWidth = config.getWidth(originalWidth);
 		int newHeight = config.getHeight(originalHeight);
 
+		boolean hidGui = false;
+
+		if (config.hideUI != mc.options.hideGui) {
+			mc.options.hideGui = config.hideUI;
+			hidGui = true;
+		}
+
 		boolean needsResize = newWidth != originalWidth || newHeight != originalHeight;
 
+		boolean needsRerender = needsResize || hidGui;
+
 		if (needsResize) {
-			RUST.LOGGER.info("taking screenshot with custom resolution: {}x{}", newWidth, newHeight);
 			window.setWidth(newWidth);
 			window.setHeight(newHeight);
 			mc.resizeDisplay();
+		}
 
+		if (needsRerender) {
 			#if MC < 21.5
 			mc.getMainRenderTarget().bindWrite(true);
 			com.mojang.blaze3d.systems.RenderSystem.enableCull();
@@ -61,6 +70,10 @@ public final class Screenshots {
 			window.setWidth(originalWidth);
 			window.setHeight(originalHeight);
 			mc.resizeDisplay();
+		}
+
+		if (hidGui) {
+			mc.options.hideGui = !config.hideUI;
 		}
 	}
 }

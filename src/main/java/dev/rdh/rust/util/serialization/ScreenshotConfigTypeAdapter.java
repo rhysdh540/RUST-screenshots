@@ -33,7 +33,7 @@ public class ScreenshotConfigTypeAdapter extends TypeAdapter<ScreenshotConfig> {
 			throw new IllegalArgumentException("Unknown screenshot config type: " + value.getClass().getName());
 		}
 
-		out.name("enabled").value(value.enabled());
+		out.name("enabled").value(value.enabled);
 		out.endObject();
 	}
 
@@ -102,9 +102,7 @@ public class ScreenshotConfigTypeAdapter extends TypeAdapter<ScreenshotConfig> {
 			default -> throw new IllegalArgumentException("Unknown screenshot config type: " + type);
 		};
 
-		if (!enabled) {
-			config.toggleEnabled();
-		}
+		config.enabled = enabled;
 
 		return config;
 	}

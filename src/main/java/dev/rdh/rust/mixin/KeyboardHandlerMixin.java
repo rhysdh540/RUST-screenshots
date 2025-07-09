@@ -43,7 +43,7 @@ public class KeyboardHandlerMixin {
 		}
 
 		for(ScreenshotConfig config : ConfigManager.ALL_CONFIGS) {
-			if(config.key().matches(key, scanCode) && config.enabled()) {
+			if(config.key().matches(key, scanCode) && config.enabled) {
 				Screenshots.grab(config);
 				ci.cancel();
 				return;

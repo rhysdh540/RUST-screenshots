@@ -20,6 +20,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class ConfigEditorWidget extends RustContainerWidget {
 
@@ -46,7 +47,7 @@ public class ConfigEditorWidget extends RustContainerWidget {
 		this.nameEditor = new EditBox(font, x, y, width - 20 - 5, 20, CommonComponents.EMPTY);
 
 		enabledButton = Button.builder(CommonComponents.EMPTY, b -> {
-			config.toggleEnabled();
+			config.enabled = !config.enabled;
 			refreshEnabledButton();
 		})
 				.size(20, 20)
@@ -106,9 +107,11 @@ public class ConfigEditorWidget extends RustContainerWidget {
 				.pos(x + 2, secondRowY)
 				.size(width - 2, 20)
 				.build();
+
+		Pattern scalePattern = Pattern.compile("\\d*\\.?\\d{0,2}");
 		scaleEditor.widget.setFilter(str -> {
 			if (str.isEmpty()) return true;
-			return str.matches("\\d*\\.?\\d{0,2}") && Float.parseFloat(str) <= 10.0;
+			return scalePattern.matcher(str).matches() && Float.parseFloat(str) <= 10.0;
 		});
 		scaleEditor.widget.setResponder(str -> {
 			if (!str.isEmpty()) {
@@ -175,8 +178,8 @@ public class ConfigEditorWidget extends RustContainerWidget {
 	}
 
 	private void refreshEnabledButton() {
-		enabledButton.setMessage(Component.literal(config.enabled() ? "O" : "X"));
-		enabledButton.setTooltip(Tooltip.create(Component.literal(config.enabled() ? "Enabled" : "Disabled")));
+		enabledButton.setMessage(Component.literal(config.enabled ? "O" : "X"));
+		enabledButton.setTooltip(Tooltip.create(Component.literal(config.enabled ? "Enabled" : "Disabled")));
 	}
 
 	private void refreshKeybindButton() {
