@@ -35,7 +35,7 @@ public class ConfigListWidget extends RustSelectionList<ConfigListEntry> {
 	@Override
 	public void setSelected(ConfigListEntry entry) {
 		super.setSelected(entry);
-		parent.updateConfigDetails(entry.config);
+		parent.updateConfigDetails(entry == null ? null : entry.config);
 	}
 
 	public void add(ScreenshotConfig config) {

@@ -1,18 +1,16 @@
 package dev.rdh.rust.ui.customization;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.platform.Window;
 
 import dev.rdh.rust.customization.CustomScreenshotConfig;
+import dev.rdh.rust.customization.ScaledScreenshotConfig;
 import dev.rdh.rust.customization.ScreenshotConfig;
 import dev.rdh.rust.customization.ConfigManager;
-import dev.rdh.rust.customization.VanillaScreenshotConfig;
 import dev.rdh.rust.util.gui.RustContainerWidget;
 import dev.rdh.rust.util.gui.StretchingLabeledWidget;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -28,21 +26,22 @@ public class ConfigEditorWidget extends RustContainerWidget {
 	private ScreenshotConfig config;
 
 	private final Button enabledButton;
-	private final Button deleteButton;
 	private final EditBox nameEditor;
 
 	private final StretchingLabeledWidget<Button> keybindButton;
 	private boolean keybindSelected;
 
+	private final StringWidget xWidget;
 	private final EditBox widthEditor;
 	private final EditBox heightEditor;
+	private final StretchingLabeledWidget<EditBox> scaleEditor;
 
 	public ConfigEditorWidget(ConfigListScreen screen, int x, int y, int width, int height) {
 		super(x, y, width, height);
 
-		Font font = screen.getFont();
+		this.config = screen.getSelected();
 
-		this.config = VanillaScreenshotConfig.INSTANCE;
+		Font font = screen.getFont();
 
 		this.nameEditor = new EditBox(font, x, y, width - 20 - 5, 20, CommonComponents.EMPTY);
 
@@ -64,8 +63,8 @@ public class ConfigEditorWidget extends RustContainerWidget {
 
 		keybindButton = StretchingLabeledWidget.containing(button)
 				.label(Component.literal("Keybind:"), font)
-				.pos(x, 55)
-				.size(width, 20)
+				.pos(x + 2, 55)
+				.size(width - 2, 20)
 				.build();
 
 		Predicate<String> intFilter = s -> {
@@ -78,7 +77,7 @@ public class ConfigEditorWidget extends RustContainerWidget {
 
 		int secondRowY = keybindButton.getY() + keybindButton.getHeight() + 5;
 		Component xText = Component.literal(" x ");
-		this.addChild(new StringWidget(x - 1, secondRowY + 5, width, font.lineHeight, xText, font));
+		xWidget = new StringWidget(x - 1, secondRowY + 5, width, font.lineHeight, xText, font);
 
 		int middleX = x + (width / 2);
 		int middleXBack = middleX - (font.width(xText) / 2);
@@ -102,12 +101,29 @@ public class ConfigEditorWidget extends RustContainerWidget {
 			}
 		});
 
-		deleteButton = Button.builder(Component.translatable("selectServer.delete"), b -> {
-					ConfigManager.ALL_CONFIGS.remove(screen.removeSelected());
-		})
-				.size(width, 20)
-				.pos(x, y + height - 20)
+		scaleEditor = StretchingLabeledWidget.containing(new EditBox(font, 0, 0, 75, 20, CommonComponents.EMPTY))
+				.label(Component.literal("Scale:"), font)
+				.pos(x + 2, secondRowY)
+				.size(width - 2, 20)
 				.build();
+		scaleEditor.widget.setFilter(str -> {
+			if (str.isEmpty()) return true;
+			return str.matches("\\d*\\.?\\d{0,2}") && Float.parseFloat(str) <= 10.0;
+		});
+		scaleEditor.widget.setResponder(str -> {
+			if (!str.isEmpty()) {
+				ScaledScreenshotConfig s = (ScaledScreenshotConfig) config;
+				s.setScale(Float.parseFloat(str));
+			}
+		});
+
+		this.addChild(
+				Button.builder(Component.translatable("selectServer.delete"),
+								b -> ConfigManager.ALL_CONFIGS.remove(screen.removeSelected()))
+						.size(width, 20)
+						.pos(x, y + height - 20)
+						.build()
+		);
 
 		addChildrenFromFields();
 
@@ -117,61 +133,40 @@ public class ConfigEditorWidget extends RustContainerWidget {
 	public void setConfig(ScreenshotConfig config) {
 		this.config = config;
 
-		boolean vanilla = config == VanillaScreenshotConfig.INSTANCE;
-		CustomScreenshotConfig c = vanilla ? null : (CustomScreenshotConfig) config;
-
-		if(vanilla) {
-			nameEditor.setResponder(null);
-			nameEditor.setEditable(false);
-			nameEditor.active = false;
+		if (config == null) {
+			this.visible = false;
+			return;
 		} else {
-			nameEditor.setResponder(c::setName);
-			nameEditor.setEditable(true);
-			nameEditor.active = true;
-			nameEditor.setHint(
-					Component.literal(CustomScreenshotConfig.defaultName(
-							config.getWidth(0),
-							config.getHeight(0)
-					)));
+			this.visible = true;
 		}
+
+		nameEditor.setResponder(config::setName);
+		nameEditor.setEditable(true);
+		nameEditor.active = true;
+		nameEditor.setHint(Component.literal(config.getDefaultName()));
 
 		nameEditor.setValue(config.getName());
 
 		refreshEnabledButton();
 
-		Window w = Minecraft.getInstance().getWindow();
-
-		if (vanilla) {
-			widthEditor.setResponder(null);
-			widthEditor.setEditable(false);
-			widthEditor.active = false;
+		if (config instanceof CustomScreenshotConfig c) {
+			xWidget.visible = true;
+			widthEditor.setValue(String.valueOf(c.getWidth()));
+			widthEditor.visible = true;
+			heightEditor.setValue(String.valueOf(c.getHeight()));
+			heightEditor.visible = true;
 		} else {
-			widthEditor.setResponder(str -> {
-				if (!str.isEmpty()) {
-					c.setWidth(Integer.parseInt(str));
-				}
-			});
-			widthEditor.setEditable(true);
-			widthEditor.active = true;
+			xWidget.visible = false;
+			widthEditor.visible = false;
+			heightEditor.visible = false;
 		}
-		widthEditor.setValue(String.valueOf(config.getWidth(w.getWidth())));
 
-		if (vanilla) {
-			heightEditor.setResponder(null);
-			heightEditor.setEditable(false);
-			heightEditor.active = false;
+		if (config instanceof ScaledScreenshotConfig s) {
+			scaleEditor.widget.setValue(String.valueOf(s.getScale()));
+			scaleEditor.visible = true;
 		} else {
-			heightEditor.setResponder(str -> {
-				if (!str.isEmpty()) {
-					c.setHeight(Integer.parseInt(str));
-				}
-			});
-			heightEditor.setEditable(true);
-			heightEditor.active = true;
+			scaleEditor.visible = false;
 		}
-		heightEditor.setValue(String.valueOf(config.getHeight(w.getHeight())));
-
-		deleteButton.active = !vanilla;
 
 		keybindSelected = false;
 		refreshKeybindButton();

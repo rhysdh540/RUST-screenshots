@@ -2,6 +2,7 @@ package dev.rdh.rust.util;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import dev.rdh.rust.RUST;
@@ -66,22 +67,26 @@ public final class ImageCache {
 		removalCallbacks.computeIfAbsent(path, k -> new ObjectArrayList<>()).add(callback);
 	}
 
-	private static final List<Consumer<Path>> addCallbacks = new ObjectArrayList<>();
+	private static final Map<Object, Consumer<Path>> addCallbacks = new Object2ObjectOpenHashMap<>();
 
-	public static void onAdded(Consumer<Path> callback) {
+	public static void onAdded(Object key, Consumer<Path> callback) {
 		if (callback == null) {
 			throw new IllegalArgumentException("Callback cannot be null");
 		}
 
-		addCallbacks.add(callback);
+		if (addCallbacks.containsKey(key)) {
+			throw new IllegalArgumentException("Callback for key '" + key + "' already exists");
+		}
+
+		addCallbacks.put(key, callback);
 	}
 
-	public static void removeAddedCallback(Consumer<Path> callback) {
-		if (callback == null) {
-			throw new IllegalArgumentException("Callback cannot be null");
+	public static void removeAddedCallback(Object key) {
+		if (!addCallbacks.containsKey(key)) {
+			throw new IllegalArgumentException("No callback found for key '" + key + "'");
 		}
 
-		addCallbacks.remove(callback);
+		addCallbacks.remove(key);
 	}
 
 	private static ResourceLocation createResource(Path path) {
@@ -141,7 +146,7 @@ public final class ImageCache {
 					Runnable task;
 					if (event.kind() == ENTRY_CREATE && Files.isRegularFile(path) && path.toString().endsWith(".png")) {
 						task = () -> {
-							for(Consumer<Path> callback : addCallbacks) {
+							for(Consumer<Path> callback : addCallbacks.values()) {
 								callback.accept(path);
 							}
 						};

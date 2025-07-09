@@ -102,4 +102,13 @@ public class ConfigListScreen extends RustScreen {
 			return null;
 		}
 	}
+
+	public ScreenshotConfig getSelected() {
+		ConfigListEntry e = this.list.getSelected();
+		if (e != null) {
+			return e.config;
+		} else {
+			return null;
+		}
+	}
 }

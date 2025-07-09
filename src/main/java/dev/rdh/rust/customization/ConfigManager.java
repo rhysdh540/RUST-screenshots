@@ -22,6 +22,12 @@ public final class ConfigManager {
 	public static final Set<ScreenshotConfig> ALL_CONFIGS = Collections.newSetFromMap(new Object2BooleanLinkedOpenHashMap<>());
 	private static final Type SCREENSHOT_CONFIG_SET_TYPE = TypeToken.getParameterized(Set.class, ScreenshotConfig.class).getType();
 
+	public static final ScaledScreenshotConfig VANILLA_CONFIG =
+			new ScaledScreenshotConfig(
+					"Vanilla Screenshot",
+					InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_F2),
+					1.0f);
+
 	private static final Path path = RUST.CONFIG_PATH.resolve("screenshots.json");
 	private static final Gson GSON = new GsonBuilder()
 			#if MC < 21.5
@@ -34,20 +40,21 @@ public final class ConfigManager {
 			.create();
 
 	static {
-		ALL_CONFIGS.add(VanillaScreenshotConfig.INSTANCE);
 		try {
 			if(Files.exists(path)) {
 				ALL_CONFIGS.addAll(
 						GSON.fromJson(Files.newBufferedReader(path, StandardCharsets.UTF_8),
 								SCREENSHOT_CONFIG_SET_TYPE)
 				);
+			} else {
+				ALL_CONFIGS.add(VANILLA_CONFIG);
 			}
 
 		} catch (Throwable t) {
 			RUST.LOGGER.error("Failed to load screenshot configs", t);
 		}
 
-		if (RUST.IS_DEV_ENV && ALL_CONFIGS.size() == 1) {
+		if (RUST.IS_DEV_ENV && ALL_CONFIGS.size() <= 1) {
 			for (int i = 1; i <= 50; i++) {
 				ALL_CONFIGS.add(new CustomScreenshotConfig("Test Config " + i, InputConstants.UNKNOWN, i * 20, i * 10));
 			}

@@ -32,7 +32,7 @@ public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 		this.parent = parent;
 
 		screenshots.forEach(this::addEntry);
-		ImageCache.onAdded(this::addEntry);
+		ImageCache.onAdded(this, this::addEntry);
 
 		if (!this.children().isEmpty()) {
 			this.setSelected(this.getEntry(0));
@@ -78,7 +78,7 @@ public class ScreenshotListWidget extends RustSelectionList<ScreenshotEntry> {
 	@Override
 	public void close() {
 		super.close();
-		ImageCache.removeAddedCallback(this::addEntry);
+		ImageCache.removeAddedCallback(this);
 	}
 
 	public static class ScreenshotEntry extends RustSelectionList.Entry<ScreenshotEntry> implements Closeable {
